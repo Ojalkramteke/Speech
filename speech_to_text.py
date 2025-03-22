@@ -39,6 +39,7 @@ def test_microphone():
         f.write(audio.get_wav_data())
 
     print("Audio recorded. Check test_audio.wav")
+    print("Hello")
 
 test_microphone()
 
