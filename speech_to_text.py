@@ -7,8 +7,8 @@ for voice in voices:
     engine.setProperty('voice', voice.id)
     engine.setProperty("rate", 175)
 
-def speak(audio):
-    engine.say(audio)
+def speak(command):
+    engine.say(command)
     engine.runAndWait()
 
 def command():
