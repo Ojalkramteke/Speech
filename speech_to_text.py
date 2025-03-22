@@ -29,8 +29,6 @@ def command():
 
     return content
 
-def main_process():
-    while True:
-        request = command()
-        print(request)
+request = command()
+print(request)
 #speak("How are you?")
