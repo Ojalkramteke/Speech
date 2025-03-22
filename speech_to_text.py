@@ -8,6 +8,7 @@ for voice in voices:
     engine.setProperty("rate", 175)
     
 
+print("Hello")
 def speak(command):
     engine.say(command)
     engine.runAndWait()
