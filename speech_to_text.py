@@ -43,14 +43,14 @@ def main_process():
         elif "play music" in request:
             speak("Playing Music!")
             songs = [
-                "https://www.youtube.com/watch?v=FZLadzn5i6Q",
+                "https://www.youtube.com/watch?v=1G4isv_Fylg",
                 "https://www.youtube.com/watch?v=pElk1ShPrcE",
                 "https://www.youtube.com/watch?v=1cDoRqPnCXU"
             ]
             webbrowser.open(random.choice(songs))
             break
         elif "exit" in request or "stop" in request or "bye" in request or "ok" in request:
-            speak("Goodbye!")
+            speak("Goodbye!See you soon")
             break
         elif "say time" in request:
             now_time = datetime.datetime.now().strftime("%H:%M")
