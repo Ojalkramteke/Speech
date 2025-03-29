@@ -3,12 +3,14 @@ import speech_recognition as sr
 import random
 import webbrowser
 import datetime
+import os
+import subprocess
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
 voices = engine.getProperty("voices")
-engine.setProperty("voice", voices[0].id)  # Select voice
-engine.setProperty("rate", 175)  # Adjust speech rate
+engine.setProperty("voice", voices[0].id)
+engine.setProperty("rate", 175)
 
 
 def speak(audio):
@@ -21,10 +23,10 @@ def command():
     """Capture voice command from user."""
     r = sr.Recognizer()
     with sr.Microphone() as source:
-        print("Say something...")
-        r.adjust_for_ambient_noise(source)  # Reduce background noise
+        print("Listening...")
+        r.adjust_for_ambient_noise(source)
         try:
-            audio = r.listen(source, timeout=5)  # Increased timeout
+            audio = r.listen(source, timeout=5)
             content = r.recognize_google(audio, language="en-in")
             print("You said:", content)
             return content.lower()
@@ -36,19 +38,33 @@ def command():
             return ""
 
 
-def search_google(query):
-    search_url = f"https://www.google.com/search?q={query}"
-    webbrowser.open(search_url)
+def search_web(query, platform):
+    """Searches Google, YouTube, or Maps based on the platform specified."""
+    search_engines = {
+        "google": f"https://www.google.com/search?q={query}",
+        "youtube": f"https://www.youtube.com/results?search_query={query}",
+        "maps": f"https://www.google.com/maps/search/{query}",
+    }
+
+    if platform in search_engines:
+        webbrowser.open(search_engines[platform])
+        speak(f"Searching {platform} for {query}")
 
 
-def search_youtube(query):
-    search_url = f"https://www.youtube.com/results?search_query={query}"
-    webbrowser.open(search_url)
+def open_application(app_name):
+    """Opens applications based on user command."""
+    apps = {
+        "notepad": "notepad.exe",
+        "calculator": "calc.exe",
+        "chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "vs code": "C:\\Users\\praja\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+    }
 
-
-def search_google_maps(query):
-    search_url = f"https://www.google.com/maps/search/{query}"
-    webbrowser.open(search_url)
+    if app_name in apps:
+        subprocess.Popen([apps[app_name]])  # Open app without blocking execution
+        speak(f"Opening {app_name}")
+    else:
+        speak("Sorry, I couldn't find that application.")
 
 
 def main_process():
@@ -57,7 +73,7 @@ def main_process():
         request = command()
 
         if "hello" in request:
-            speak("Welcome, how can I help you?")
+            speak("Welcome! How can I assist you?")
 
         elif "play music" in request:
             speak("Playing Music!")
@@ -68,37 +84,36 @@ def main_process():
             ]
             webbrowser.open(random.choice(songs))
 
-        elif "say time" in request:
+        elif "time" in request:
             now_time = datetime.datetime.now().strftime("%H:%M")
             speak("Current time is " + now_time)
 
-        elif "say date" in request:
+        elif "date" in request:
             now_date = datetime.datetime.now().strftime("%d-%m-%Y")
             speak("Today's date is " + now_date)
 
-        elif "open google and search" in request:
-            if "search" in request:
-                search_query = request.split("open google and search")[-1].strip()
-                search_google(search_query)
-                speak(f"Searching Google for {search_query}")
+        elif "search google for" in request:
+            search_query = request.replace("search google for", "").strip()
+            if search_query:
+                search_web(search_query, "google")
 
-        elif "open youtube and search" in request:
-            if "search" in request:
-                search_query = request.split("open youtube and search")[-1].strip()
-                search_youtube(search_query)
-                speak(f"Searching Youtube for {search_query}")
+        elif "search youtube for" in request:
+            search_query = request.replace("search youtube for", "").strip()
+            if search_query:
+                search_web(search_query, "youtube")
 
-        elif "open google maps and search" in request:
-            if "search" in request:
-                search_query = request.split("open google maps and search")[-1].strip()
-                search_google_maps(search_query)
-                speak(f"Searching Google Maps for {search_query}")
+        elif "search maps for" in request or "search google maps for" in request:
+            search_query = (
+                request.replace("search maps for", "")
+                .replace("search google maps for", "")
+                .strip()
+            )
+            if search_query:
+                search_web(search_query, "maps")
 
-        elif "open notepad" in request:
-            speak("Opening Notepad")
-            import os
-
-            os.system("notepad.exe")
+        elif "open" in request:
+            app_name = request.replace("open", "").strip()
+            open_application(app_name)
 
         elif "exit" in request or "stop" in request or "bye" in request:
             speak("Goodbye! See you soon.")
