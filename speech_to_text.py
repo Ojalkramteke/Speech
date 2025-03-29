@@ -5,6 +5,8 @@ import webbrowser
 import datetime
 import os
 import subprocess
+import smtplib
+import ctypes
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
@@ -67,15 +69,61 @@ def open_application(app_name):
         speak("Sorry, I couldn't find that application.")
 
 
+def change_volume(action):
+    """Control system volume."""
+    if action == "increase":
+        for _ in range(5):  # Increase volume by 5 steps
+            ctypes.windll.user32.keybd_event(0xAF, 0, 0, 0)  # Volume up
+        speak("Volume increased")
+    elif action == "decrease":
+        for _ in range(5):  # Decrease volume by 5 steps
+            ctypes.windll.user32.keybd_event(0xAE, 0, 0, 0)  # Volume down
+        speak("Volume decreased")
+    elif action == "mute":
+        ctypes.windll.user32.keybd_event(0xAD, 0, 0, 0)  # Mute
+        speak("Volume muted")
+    elif action == "unmute":
+        ctypes.windll.user32.keybd_event(0xAD, 0, 0, 0)  # Unmute (same key as mute)
+        speak("Volume unmuted")
+
+
+import smtplib
+
+
+# def send_email(to_email, subject, message):
+#     """Send an email using SMTP with an App Password."""
+#     try:
+#         sender_email = "323keshav0012@dbit.in"  # Your Gmail
+#         sender_password = "xqeb woxj pwnj isvz"  # Use the generated App Password
+
+#         server = smtplib.SMTP("smtp.gmail.com", 587)
+#         server.starttls()
+#         server.login(sender_email, sender_password)
+
+#         email_message = f"Subject: {subject}\n\n{message}"
+#         server.sendmail(sender_email, to_email, email_message)
+#         server.quit()
+
+#         print("Email has been sent successfully.")
+#         speak("Email has been sent successfully.")
+#     except Exception as e:
+#         print("Error:", e)
+#         speak("Sorry, I couldn't send the email.")
+
+
 def main_process():
     """Main function to process commands."""
     while True:
         request = command()
 
-        if "hello" in request:
+        if "hello" in request or "hi" in request or "hey" in request:
             speak("Welcome! How can I assist you?")
 
-        elif "play music" in request:
+        elif (
+            "play music" in request
+            or "play song" in request
+            or "play a song" in request
+        ):
             speak("Playing Music!")
             songs = [
                 "https://www.youtube.com/watch?v=1G4isv_Fylg",
@@ -114,6 +162,45 @@ def main_process():
         elif "open" in request:
             app_name = request.replace("open", "").strip()
             open_application(app_name)
+
+        elif "increase volume" in request:
+            change_volume("increase")
+
+        elif "decrease volume" in request:
+            change_volume("decrease")
+
+        elif "mute volume" in request:
+            change_volume("mute")
+
+        elif "unmute volume" in request:
+            change_volume("unmute")
+
+        # elif "send email" in request:
+        #     speak("To whom should I send the email?")
+        #     recipient = command()
+
+        #     # Manually set recipient email or map to known contacts
+        #     email_contacts = {
+        #         "keshav": "323keshav0012@dbit.in",  # Replace with actual emails
+        #         "ghost": "prajapatikeshav775@gmail.com",
+        #         "thor": "odinson454@gmail.com",
+        #     }
+
+        #     if recipient in email_contacts:
+        #         to_email = email_contacts[recipient]
+        #     else:
+        #         speak("I couldn't find that contact. Please provide an email address.")
+        #         to_email = command()
+
+        #     speak("What is the subject?")
+        #     subject = command()
+        #     speak("What should I say in the email?")
+        #     message = command()
+
+        #     if to_email and subject and message:
+        #         send_email(to_email, subject, message)
+        #     else:
+        #         speak("I couldn't get the email details properly.")
 
         elif "exit" in request or "stop" in request or "bye" in request:
             speak("Goodbye! See you soon.")
