@@ -64,11 +64,20 @@ def open_application(app_name):
         "calculator": "calc.exe",
         "chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
         "vs code": "C:\\Users\\praja\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+        "clock": "ms-clock:",  # Windows Clock app
+        "alarms": "ms-clock:alarms",  # Direct to alarms section
     }
 
     if app_name in apps:
-        subprocess.Popen([apps[app_name]])  # Open app without blocking execution
-        speak(f"Opening {app_name}")
+        try:
+            if app_name in ["clock", "alarms"]:
+                subprocess.Popen(["start", apps[app_name]], shell=True)
+            else:
+                subprocess.Popen([apps[app_name]])
+            speak(f"Opening {app_name}")
+        except Exception as e:
+            print(f"Error opening {app_name}:", e)
+            speak(f"Sorry, I couldn't open {app_name}")
     else:
         speak("Sorry, I couldn't find that application.")
 
@@ -89,27 +98,6 @@ def change_volume(action):
     elif action == "unmute":
         ctypes.windll.user32.keybd_event(0xAD, 0, 0, 0)  # Unmute (same key as mute)
         speak("Volume unmuted")
-
-
-# def send_email(to_email, subject, message):
-#     """Send an email using SMTP with an App Password."""
-#     try:
-#         sender_email = "323keshav0012@dbit.in"  # Your Gmail
-#         sender_password = ""  # Use the generated App Password
-
-#         server = smtplib.SMTP("smtp.gmail.com", 587)
-#         server.starttls()
-#         server.login(sender_email, sender_password)
-
-#         email_message = f"Subject: {subject}\n\n{message}"
-#         server.sendmail(sender_email, to_email, email_message)
-#         server.quit()
-
-#         print("Email has been sent successfully.")
-#         speak("Email has been sent successfully.")
-#     except Exception as e:
-#         print("Error:", e)
-#         speak("Sorry, I couldn't send the email.")
 
 
 def get_weather(city):
@@ -145,10 +133,25 @@ def get_weather(city):
         speak("There was an error retrieving the weather.")
 
 
+def set_alarm():
+    """Open the Clock app to set an alarm."""
+    speak("I'll open the Clock app where you can set your alarm.")
+    open_application("alarms")
+
+
+def set_reminder():
+    """Open the Clock app to set a reminder."""
+    speak("I'll open the Clock app where you can set your reminder.")
+    open_application("clock")
+
+
 def main_process():
     """Main function to process commands."""
     while True:
         request = command()
+
+        if not request:
+            continue  # Skip empty commands
 
         if "hello" in request or "hi" in request or "hey" in request:
             speak("Welcome! How can I assist you?")
@@ -209,32 +212,6 @@ def main_process():
         elif "unmute volume" in request:
             change_volume("unmute")
 
-        # elif "send email" in request:
-        #     speak("To whom should I send the email?")
-        #     recipient = command()
-
-        #     # Manually set recipient email or map to known contacts
-        #     email_contacts = {
-        #         "keshav": "323keshav0012@dbit.in",  # Replace with actual emails
-        #         "student": "prajapatikeshav775@gmail.com",
-        #     }
-
-        #     if recipient in email_contacts:
-        #         to_email = email_contacts[recipient]
-        #     else:
-        #         speak("I couldn't find that contact. Please provide an email address.")
-        #         to_email = command()
-
-        #     speak("What is the subject?")
-        #     subject = command()
-        #     speak("What should I say in the email?")
-        #     message = command()
-
-        #     if to_email and subject and message:
-        #         send_email(to_email, subject, message)
-        #     else:
-        #         speak("I couldn't get the email details properly.")
-
         elif "weather" in request or "what's the weather" in request:
             speak("Which city's weather would you like to know?")
             city = command()
@@ -243,9 +220,16 @@ def main_process():
             else:
                 speak("I couldn't get the city name.")
 
+        elif "set alarm" in request or "create alarm" in request:
+            set_alarm()
+
+        elif "set reminder" in request or "create reminder" in request:
+            set_reminder()
+
         elif "exit" in request or "stop" in request or "bye" in request:
             speak("Goodbye! See you soon.")
             break
 
 
-main_process()
+if __name__ == "__main__":
+    main_process()
