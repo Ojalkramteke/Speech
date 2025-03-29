@@ -7,12 +7,16 @@ import os
 import subprocess
 import smtplib
 import ctypes
+import requests
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
 voices = engine.getProperty("voices")
 engine.setProperty("voice", voices[0].id)
 engine.setProperty("rate", 175)
+
+API_KEY = "6dcd5ff2ef8bdb816b3bb8c5ddccd73d"  # Replace with your API key
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 
 def speak(audio):
@@ -87,14 +91,11 @@ def change_volume(action):
         speak("Volume unmuted")
 
 
-import smtplib
-
-
 # def send_email(to_email, subject, message):
 #     """Send an email using SMTP with an App Password."""
 #     try:
 #         sender_email = "323keshav0012@dbit.in"  # Your Gmail
-#         sender_password = "xqeb woxj pwnj isvz"  # Use the generated App Password
+#         sender_password = ""  # Use the generated App Password
 
 #         server = smtplib.SMTP("smtp.gmail.com", 587)
 #         server.starttls()
@@ -109,6 +110,39 @@ import smtplib
 #     except Exception as e:
 #         print("Error:", e)
 #         speak("Sorry, I couldn't send the email.")
+
+
+def get_weather(city):
+    """Fetches weather data for a given city."""
+    try:
+        params = {"q": city, "appid": API_KEY, "units": "metric"}
+        response = requests.get(BASE_URL, params=params)
+        data = response.json()
+
+        print("API Response:", data)  # Debugging line to check API response
+
+        if data["cod"] != 200:
+            speak(
+                f"Sorry, I couldn't fetch the weather. Error: {data.get('message', 'Unknown error')}"
+            )
+            return
+
+        temp = data["main"]["temp"]
+        weather_desc = data["weather"][0]["description"]
+        humidity = data["main"]["humidity"]
+        wind_speed = data["wind"]["speed"]
+
+        weather_info = (
+            f"The current temperature in {city} is {temp} degrees Celsius, "
+            f"with {weather_desc}. The humidity is {humidity} percent, "
+            f"and the wind speed is {wind_speed} meters per second."
+        )
+        print(weather_info)
+        speak(weather_info)
+
+    except Exception as e:
+        print("Error fetching weather:", e)
+        speak("There was an error retrieving the weather.")
 
 
 def main_process():
@@ -182,8 +216,7 @@ def main_process():
         #     # Manually set recipient email or map to known contacts
         #     email_contacts = {
         #         "keshav": "323keshav0012@dbit.in",  # Replace with actual emails
-        #         "ghost": "prajapatikeshav775@gmail.com",
-        #         "thor": "odinson454@gmail.com",
+        #         "student": "prajapatikeshav775@gmail.com",
         #     }
 
         #     if recipient in email_contacts:
@@ -201,6 +234,14 @@ def main_process():
         #         send_email(to_email, subject, message)
         #     else:
         #         speak("I couldn't get the email details properly.")
+
+        elif "weather" in request or "what's the weather" in request:
+            speak("Which city's weather would you like to know?")
+            city = command()
+            if city:
+                get_weather(city)
+            else:
+                speak("I couldn't get the city name.")
 
         elif "exit" in request or "stop" in request or "bye" in request:
             speak("Goodbye! See you soon.")
