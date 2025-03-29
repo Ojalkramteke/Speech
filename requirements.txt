@@ -1,0 +1,5 @@
+PyAudio
+SpeechRecognition
+# setuptools
+# webbrowser
+pyttsx3
