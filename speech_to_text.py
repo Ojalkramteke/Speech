@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+import os
 import pyttsx3
 import speech_recognition as sr
 import random
@@ -9,16 +11,19 @@ import smtplib
 import ctypes
 import requests
 
+
+# Load the variables from .env
+load_dotenv()
+
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
 voices = engine.getProperty("voices")
 engine.setProperty("voice", voices[0].id)
 engine.setProperty("rate", 175)
 
-API_KEY = "6dcd5ff2ef8bdb816b3bb8c5ddccd73d"  # Replace with your API key
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
-
-
+API_KEY = os.getenv("API_KEY") #Weather api key
+BASE_URL = os.getenv("BASE_URL") #Weather base url
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 def speak(audio):
     """Speak out the given text."""
     engine.say(audio)
@@ -144,6 +149,29 @@ def set_reminder():
     speak("I'll open the Clock app where you can set your reminder.")
     open_application("clock")
 
+def get_news():
+    """Fetch top news headlines using News API."""
+    try:
+        url = f"https://newsapi.org/v2/top-headlines?country=in&apiKey={NEWS_API_KEY}"
+        response = requests.get(url)
+        data = response.json()
+
+        if data["status"] != "ok":
+            speak("Sorry, I couldn't fetch the news at the moment.")
+            return
+
+        articles = data["articles"][:5]  # Get top 5 articles
+        speak("Here are the top news headlines:")
+
+        for i, article in enumerate(articles, 1):
+            title = article.get("title", "No title available")
+            print(f"{i}. {title}")
+            speak(title)
+
+    except Exception as e:
+        print("Error fetching news:", e)
+        speak("There was an error getting the news.")
+
 
 def main_process():
     """Main function to process commands."""
@@ -225,6 +253,9 @@ def main_process():
 
         elif "set reminder" in request or "create reminder" in request:
             set_reminder()
+
+        elif "news" in request or "headlines" in request or "what's the news" in request:
+            get_news()
 
         elif "exit" in request or "stop" in request or "bye" in request:
             speak("Goodbye! See you soon.")
