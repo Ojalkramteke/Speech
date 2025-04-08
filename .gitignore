@@ -1,1 +1,6 @@
 **/*.env
+vosk-model-en-in-0.5/
+vosk-model-hi-0.22/
+vosk-model-small-en-in-0.4/
+vosk-model-en-us-0.22/
+dictation.txt

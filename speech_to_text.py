@@ -10,6 +10,8 @@ import subprocess
 import smtplib
 import ctypes
 import requests
+import pyautogui  # For simulating keyboard typing
+
 
 
 # Load the variables from .env
@@ -168,6 +170,20 @@ def send_email(to_email, subject, message):
         print("Failed to send email:", e)
         speak("Sorry, I couldn't send the email.")
 
+def dictate_to_file(filename="dictation.txt"):
+    """Dictates spoken words and writes them into a text file."""
+    speak("Start speaking. I will write everything you say into a file. Say 'stop dictation' to finish.")
+    
+    with open(filename, "a", encoding="utf-8") as file:
+        while True:
+            spoken_text = command()
+            if "stop dictation" in spoken_text:
+                speak("Dictation stopped. Your words have been saved.")
+                break
+            elif spoken_text:
+                file.write(spoken_text + "\n")
+
+
 
 def set_alarm():
     """Open the Clock app to set an alarm."""
@@ -309,6 +325,10 @@ def main_process():
                 continue
 
             send_email(to_email, subject, message)
+
+        elif "start dictation" in request or "dictate" in request:
+            dictate_to_file()
+
 
         elif "set alarm" in request or "create alarm" in request:
             set_alarm()
