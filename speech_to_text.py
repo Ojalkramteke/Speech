@@ -21,9 +21,11 @@ voices = engine.getProperty("voices")
 engine.setProperty("voice", voices[0].id)
 engine.setProperty("rate", 175)
 
-API_KEY = os.getenv("API_KEY") #Weather api key
-BASE_URL = os.getenv("BASE_URL") #Weather base url
+API_KEY = os.getenv("API_KEY")  # Weather api key
+BASE_URL = os.getenv("BASE_URL")  # Weather base url
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+
+
 def speak(audio):
     """Speak out the given text."""
     engine.say(audio)
@@ -138,6 +140,35 @@ def get_weather(city):
         speak("There was an error retrieving the weather.")
 
 
+# Nickname to email mapping
+email_contacts = {
+    "keshav": "prajapatikeshav497@gmail.com",
+    "ojal": "odinson454@gmail.com",
+    "cyril": "323keshav0012@dbit.in",
+    "sandhya": "prajapatisandhya619@gmail.com",
+    # Add more as needed
+}
+
+
+def send_email(to_email, subject, message):
+    """Sends an email using SMTP."""
+    from_email = os.getenv("EMAIL_ADDRESS")
+    password = os.getenv("EMAIL_PASSWORD")
+
+    email_message = f"Subject: {subject}\n\n{message}"
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(from_email, password)
+        server.sendmail(from_email, to_email, email_message)
+        server.quit()
+        speak("Email has been sent successfully.")
+    except Exception as e:
+        print("Failed to send email:", e)
+        speak("Sorry, I couldn't send the email.")
+
+
 def set_alarm():
     """Open the Clock app to set an alarm."""
     speak("I'll open the Clock app where you can set your alarm.")
@@ -148,6 +179,7 @@ def set_reminder():
     """Open the Clock app to set a reminder."""
     speak("I'll open the Clock app where you can set your reminder.")
     open_application("clock")
+
 
 def get_news():
     """Fetch top news headlines using News API."""
@@ -255,13 +287,38 @@ def main_process():
             else:
                 speak("I couldn't get the city name.")
 
+        elif "send email" in request:
+            speak("To whom should I send the email?")
+            recipient_name = command()
+
+            to_email = email_contacts.get(recipient_name)
+            if not to_email:
+                speak("I couldn't find that contact. Please try again.")
+                continue
+
+            speak("What should be the subject?")
+            subject = command()
+            if not subject:
+                speak("Subject not recognized.")
+                continue
+
+            speak("What is the message?")
+            message = command()
+            if not message:
+                speak("Message not recognized.")
+                continue
+
+            send_email(to_email, subject, message)
+
         elif "set alarm" in request or "create alarm" in request:
             set_alarm()
 
         elif "set reminder" in request or "create reminder" in request:
             set_reminder()
 
-        elif "news" in request or "headlines" in request or "what's the news" in request:
+        elif (
+            "news" in request or "headlines" in request or "what's the news" in request
+        ):
             get_news()
 
         elif "exit" in request or "stop" in request or "bye" in request:
