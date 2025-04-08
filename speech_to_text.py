@@ -11,6 +11,10 @@ import smtplib
 import ctypes
 import requests
 import pyautogui  # For simulating keyboard typing
+import whisper
+import tempfile
+import sounddevice as sd
+import scipy.io.wavfile
 
 
 
@@ -170,10 +174,13 @@ def send_email(to_email, subject, message):
         print("Failed to send email:", e)
         speak("Sorry, I couldn't send the email.")
 
+
 def dictate_to_file(filename="dictation.txt"):
     """Dictates spoken words and writes them into a text file."""
-    speak("Start speaking. I will write everything you say into a file. Say 'stop dictation' to finish.")
-    
+    speak(
+        "Start speaking. I will write everything you say into a file. Say 'stop dictation' to finish."
+    )
+
     with open(filename, "a", encoding="utf-8") as file:
         while True:
             spoken_text = command()
@@ -183,7 +190,58 @@ def dictate_to_file(filename="dictation.txt"):
             elif spoken_text:
                 file.write(spoken_text + "\n")
 
+# def dictate_with_whisper(filename="whisper_dictation.txt", duration=30):
+#     """Records audio for a given duration and transcribes using Whisper."""
+#     speak(f"Start speaking. I will record your voice for {duration} seconds.")
+    
+#     # Record audio
+#     fs = 16000  # Sample rate
+#     speak("Recording now...")
+#     recording = sd.rec(int(duration * fs), samplerate=fs, channels=1, dtype='int16')
+#     sd.wait()
+#     speak("Recording complete. Transcribing now...")
 
+#     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmpfile:
+#         scipy.io.wavfile.write(tmpfile.name, fs, recording)
+#         audio_path = tmpfile.name
+
+#     try:
+#         model = whisper.load_model("medium")
+#         result = model.transcribe(audio_path)
+#         text = result["text"]
+
+#         with open(filename, "a", encoding="utf-8") as f:
+#             f.write(text + "\n")
+
+#         print("Transcribed Text:", text)
+#         speak("Transcription complete. The text has been saved.")
+#     except Exception as e:
+#         print("Error with Whisper transcription:", e)
+#         speak("Sorry, there was a problem with transcription.")
+
+# # LibreTranslate base URL
+# LIBRETRANSLATE_URL = "https://libretranslate.com/translate"
+
+# def translate_text(text, source_lang="en", target_lang="hi"):
+#     try:
+#         payload = {
+#             "q": text,
+#             "source": source_lang,
+#             "target": target_lang,
+#             "format": "text"
+#         }
+#         response = requests.post(LIBRETRANSLATE_URL, json=payload)  # Use json instead of data
+#         print("Raw response text:", response.text)
+#         response.raise_for_status()
+#         return response.json()["translatedText"]
+#     except Exception as e:
+#         print("Translation error:", e)
+#         return "Sorry, I couldn't translate that."
+
+# # Example usage (optional)
+# # translated = translate_text("Hello, how are you?", source_lang="en", target_lang="hi")
+# # print("Translated:", translated)
+# # speak(translated)
 
 def set_alarm():
     """Open the Clock app to set an alarm."""
@@ -329,7 +387,36 @@ def main_process():
         elif "start dictation" in request or "dictate" in request:
             dictate_to_file()
 
+        # elif "translate" in request:
+        #     speak("What do you want to translate?")
+        #     sentence = command()
+        #     if not sentence:
+        #         speak("I didn't catch that.")
+        #         return
 
+        #     speak("Which language do you want to translate to?")
+        #     target_lang = command()
+
+        #     lang_map = {
+        #         "hindi": "hi",
+        #         "marathi": "mr",
+        #         "gujarati": "gu",
+        #         "tamil": "ta",
+        #         "telugu": "te",
+        #         "bengali": "bn",
+        #         "kannada": "kn",
+        #         "english": "en",
+        #         "urdu": "ur",
+        #         "malayalam": "ml",
+        #     }
+
+        #     lang_code = lang_map.get(target_lang.lower())
+        #     if not lang_code:
+        #         speak("Sorry, I don't support that language yet.")
+        #     else:
+        #         translated = translate_text(sentence, source_lang="en", target_lang=lang_code)
+        #         print("Translation:", translated)
+        #         speak(f"The translated sentence is: {translated}")
         elif "set alarm" in request or "create alarm" in request:
             set_alarm()
 
