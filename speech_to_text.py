@@ -152,20 +152,27 @@ def set_reminder():
 def get_news():
     """Fetch top news headlines using News API."""
     try:
-        url = f"https://newsapi.org/v2/top-headlines?country=in&apiKey={NEWS_API_KEY}"
+        url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={NEWS_API_KEY}"
+        print("Fetching news from:", url)  # Debug line
         response = requests.get(url)
         data = response.json()
 
+        print("API Response Status:", data.get("status"))  # Debug
         if data["status"] != "ok":
             speak("Sorry, I couldn't fetch the news at the moment.")
             return
 
-        articles = data["articles"][:5]  # Get top 5 articles
+        articles = data.get("articles", [])[:5]
+        if not articles:
+            speak("No news articles were found.")
+            return
+
+        print("Top 5 Headlines:")  # Terminal output
         speak("Here are the top news headlines:")
 
         for i, article in enumerate(articles, 1):
             title = article.get("title", "No title available")
-            print(f"{i}. {title}")
+            print(f"{i}. {title}")  # This should now print
             speak(title)
 
     except Exception as e:
