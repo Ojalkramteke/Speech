@@ -22,33 +22,34 @@ import scipy.io.wavfile
 # Load the variables from .env
 load_dotenv()
 
+
 class ModernVoiceAssistant:
     def __init__(self, root):
         self.root = root
-        self.root.title("NOVA - AI Voice Assistant")
+        self.root.title("SAYNTEX - Voice Assistant")
         self.root.geometry("900x700")
         self.root.minsize(800, 600)
-        self.root.configure(bg='#121212')
-        
+        self.root.configure(bg="#121212")
+
         # Custom theme colors
-        self.bg_color = '#121212'
-        self.card_color = '#1E1E1E'
-        self.accent_color = '#BB86FC'
-        self.secondary_color = '#03DAC6'
-        self.text_color = '#FFFFFF'
-        self.highlight_color = '#3700B3'
-        
+        self.bg_color = "#121212"
+        self.card_color = "#1E1E1E"
+        self.accent_color = "#BB86FC"
+        self.secondary_color = "#03DAC6"
+        self.text_color = "#FFFFFF"
+        self.highlight_color = "#3700B3"
+
         # Initialize text-to-speech engine
         self.engine = pyttsx3.init()
         voices = self.engine.getProperty("voices")
         self.engine.setProperty("voice", voices[0].id)
         self.engine.setProperty("rate", 175)
-        
+
         # API keys and configurations
         self.API_KEY = os.getenv("API_KEY")
         self.BASE_URL = os.getenv("BASE_URL")
         self.NEWS_API_KEY = os.getenv("NEWS_API_KEY")
-        
+
         # Email contacts
         self.email_contacts = {
             "keshav": "prajapatikeshav497@gmail.com",
@@ -56,181 +57,204 @@ class ModernVoiceAssistant:
             "cyril": "323keshav0012@dbit.in",
             "sandhya": "prajapatisandhya619@gmail.com",
         }
-        
+
         # Configure styles
         self.configure_styles()
-        
+
         # GUI elements
         self.create_widgets()
-        
+
         # Start the assistant in a separate thread
         self.listening = False
         self.assistant_thread = None
-        
+
     def configure_styles(self):
         self.style = ttk.Style()
-        self.style.theme_use('clam')
-        
+        self.style.theme_use("clam")
+
         # Configure colors
-        self.style.configure('TFrame', background=self.bg_color)
-        self.style.configure('TLabel', background=self.bg_color, foreground=self.text_color)
-        self.style.configure('TButton', 
-                           background=self.accent_color, 
-                           foreground='black',
-                           borderwidth=0,
-                           focuscolor=self.accent_color)
-        self.style.map('TButton',
-                      background=[('active', self.highlight_color)],
-                      foreground=[('active', 'white')])
-        
-        self.style.configure('TCombobox', 
-                           fieldbackground=self.card_color,
-                           background=self.card_color,
-                           foreground=self.text_color)
-        
+        self.style.configure("TFrame", background=self.bg_color)
+        self.style.configure(
+            "TLabel", background=self.bg_color, foreground=self.text_color
+        )
+        self.style.configure(
+            "TButton",
+            background=self.accent_color,
+            foreground="black",
+            borderwidth=0,
+            focuscolor=self.accent_color,
+        )
+        self.style.map(
+            "TButton",
+            background=[("active", self.highlight_color)],
+            foreground=[("active", "white")],
+        )
+
+        self.style.configure(
+            "TCombobox",
+            fieldbackground=self.card_color,
+            background=self.card_color,
+            foreground=self.text_color,
+        )
+
         # Custom card style
-        self.style.configure('Card.TFrame', background=self.card_color, borderwidth=2, relief='flat')
-        
+        self.style.configure(
+            "Card.TFrame", background=self.card_color, borderwidth=2, relief="flat"
+        )
+
     def create_widgets(self):
         # Main container
         main_container = ttk.Frame(self.root)
         main_container.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-        
+
         # Header frame
         header_frame = ttk.Frame(main_container)
         header_frame.pack(fill=tk.X, pady=(0, 20))
-        
+
         # Logo and title
         logo_frame = ttk.Frame(header_frame)
         logo_frame.pack(side=tk.LEFT)
-        
+
         try:
             logo_img = Image.open("assistant_icon.png").resize((50, 50))
             self.logo = ImageTk.PhotoImage(logo_img)
-            logo_label = ttk.Label(logo_frame, image=self.logo, background=self.bg_color)
+            logo_label = ttk.Label(
+                logo_frame, image=self.logo, background=self.bg_color
+            )
             logo_label.pack(side=tk.LEFT, padx=(0, 10))
         except:
-            logo_label = ttk.Label(logo_frame, text="🤖", font=('Arial', 24), background=self.bg_color)
+            logo_label = ttk.Label(
+                logo_frame, text="🤖", font=("Arial", 24), background=self.bg_color
+            )
             logo_label.pack(side=tk.LEFT, padx=(0, 10))
-        
-        title_label = ttk.Label(logo_frame, 
-                              text="NOVA", 
-                              font=('Helvetica', 24, 'bold'), 
-                              foreground=self.accent_color,
-                              background=self.bg_color)
+
+        title_label = ttk.Label(
+            logo_frame,
+            text="SAYNTEX",
+            font=("Helvetica", 24, "bold"),
+            foreground=self.accent_color,
+            background=self.bg_color,
+        )
         title_label.pack(side=tk.LEFT)
-        
-        subtitle_label = ttk.Label(logo_frame, 
-                                 text="AI Voice Assistant", 
-                                 font=('Helvetica', 12), 
-                                 foreground=self.text_color,
-                                 background=self.bg_color)
+
+        subtitle_label = ttk.Label(
+            logo_frame,
+            text="Voice Assistant",
+            font=("Helvetica", 12),
+            foreground=self.text_color,
+            background=self.bg_color,
+        )
         subtitle_label.pack(side=tk.LEFT, padx=(10, 0))
-        
+
         # Control buttons
         control_frame = ttk.Frame(header_frame)
         control_frame.pack(side=tk.RIGHT)
-        
+
         # Conversation display card
-        conversation_card = ttk.Frame(main_container, style='Card.TFrame')
+        conversation_card = ttk.Frame(main_container, style="Card.TFrame")
         conversation_card.pack(fill=tk.BOTH, expand=True, pady=(0, 20))
-        
+
         self.conversation_text = scrolledtext.ScrolledText(
-            conversation_card, 
-            wrap=tk.WORD, 
-            width=70, 
+            conversation_card,
+            wrap=tk.WORD,
+            width=70,
             height=20,
-            font=('Helvetica', 10), 
-            bg=self.card_color, 
+            font=("Helvetica", 10),
+            bg=self.card_color,
             fg=self.text_color,
             insertbackground=self.text_color,
             padx=15,
             pady=15,
-            relief='flat'
+            relief="flat",
         )
         self.conversation_text.pack(fill=tk.BOTH, expand=True)
-        self.conversation_text.insert(tk.END, "NOVA: Welcome! I'm your AI assistant. How can I help you today?\n")
-        self.conversation_text.configure(state='disabled')
-        
+        self.conversation_text.insert(
+            tk.END, "SAYNTEX: Welcome! I'm your assistant. How can I help you today?\n"
+        )
+        self.conversation_text.configure(state="disabled")
+
         # Add tag configurations for different speakers
-        self.conversation_text.tag_config('assistant', foreground=self.accent_color)
-        self.conversation_text.tag_config('user', foreground=self.secondary_color)
-        self.conversation_text.tag_config('system', foreground='#CF6679')
-        self.conversation_text.tag_config('news', foreground='#018786')
-        
+        self.conversation_text.tag_config("assistant", foreground=self.accent_color)
+        self.conversation_text.tag_config("user", foreground=self.secondary_color)
+        self.conversation_text.tag_config("system", foreground="#CF6679")
+        self.conversation_text.tag_config("news", foreground="#018786")
+
         # Input controls card
-        input_card = ttk.Frame(main_container, style='Card.TFrame')
+        input_card = ttk.Frame(main_container, style="Card.TFrame")
         input_card.pack(fill=tk.X, pady=(0, 10))
-        
+
         # Microphone button
         self.mic_button = ttk.Button(
             input_card,
-            text="🎤", 
-            style='TButton',
+            text="🎤",
+            style="TButton",
             command=self.toggle_listening,
-            width=3
+            width=3,
         )
         self.mic_button.pack(side=tk.LEFT, padx=10, pady=10)
-        
+
         # Quick actions dropdown
         self.quick_actions = ttk.Combobox(
             input_card,
             values=[
-                "Get Time", "Get Date", "Get Weather", 
-                "Get News", "Open Notepad", "Open Calculator",
-                "Set Alarm", "Set Reminder", "Play Music"
+                "Get Time",
+                "Get Date",
+                "Get Weather",
+                "Get News",
+                "Open Notepad",
+                "Open Calculator",
+                "Set Alarm",
+                "Set Reminder",
+                "Play Music",
             ],
             state="readonly",
-            font=('Helvetica', 10),
-            width=25
+            font=("Helvetica", 10),
+            width=25,
         )
         self.quick_actions.pack(side=tk.LEFT, padx=10, pady=10, fill=tk.X, expand=True)
         self.quick_actions.bind("<<ComboboxSelected>>", self.handle_quick_action)
-        
+
         # Exit button
         exit_button = ttk.Button(
-            input_card,
-            text="Exit", 
-            command=self.exit_app,
-            style='TButton'
+            input_card, text="Exit", command=self.exit_app, style="TButton"
         )
         exit_button.pack(side=tk.RIGHT, padx=10, pady=10)
-        
+
         # Status bar
         self.status_var = tk.StringVar()
         self.status_var.set("Ready")
         status_bar = ttk.Label(
-            main_container, 
-            textvariable=self.status_var, 
+            main_container,
+            textvariable=self.status_var,
             relief=tk.SUNKEN,
             anchor=tk.W,
-            font=('Helvetica', 9),
+            font=("Helvetica", 9),
             foreground=self.text_color,
-            background=self.highlight_color
+            background=self.highlight_color,
         )
         status_bar.pack(fill=tk.X)
-        
+
         # Configure grid weights for resizing
         main_container.columnconfigure(0, weight=1)
         main_container.rowconfigure(1, weight=1)
-        
+
     def toggle_listening(self):
         if not self.listening:
             self.listening = True
             self.status_var.set("Listening...")
-            self.mic_button.config(style='Active.TButton')
+            self.mic_button.config(style="Active.TButton")
             self.assistant_thread = threading.Thread(target=self.main_process)
             self.assistant_thread.daemon = True
             self.assistant_thread.start()
         else:
             self.listening = False
             self.status_var.set("Ready")
-            self.mic_button.config(style='TButton')
-    
+            self.mic_button.config(style="TButton")
+
     def handle_quick_action(self, event):
         action = self.quick_actions.get()
-        self.quick_actions.set('')
-        
+        self.quick_actions.set("")
+
         if action == "Get Time":
             self.get_time()
         elif action == "Get Date":
@@ -249,65 +273,67 @@ class ModernVoiceAssistant:
             self.set_reminder()
         elif action == "Play Music":
             self.play_music()
-    
+
     def get_weather_gui(self):
         def on_submit():
             city = city_entry.get()
             if city:
                 self.get_weather(city)
                 weather_window.destroy()
-        
+
         weather_window = tk.Toplevel(self.root)
         weather_window.title("Weather Check")
         weather_window.geometry("300x180")
         weather_window.configure(bg=self.bg_color)
         weather_window.resizable(False, False)
-        
+
         # Make the window appear centered
         window_width = weather_window.winfo_reqwidth()
         window_height = weather_window.winfo_reqheight()
-        position_right = int(weather_window.winfo_screenwidth()/2 - window_width/2)
-        position_down = int(weather_window.winfo_screenheight()/2 - window_height/2)
+        position_right = int(weather_window.winfo_screenwidth() / 2 - window_width / 2)
+        position_down = int(weather_window.winfo_screenheight() / 2 - window_height / 2)
         weather_window.geometry(f"+{position_right}+{position_down}")
-        
-        card = ttk.Frame(weather_window, style='Card.TFrame')
+
+        card = ttk.Frame(weather_window, style="Card.TFrame")
         card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-        
-        ttk.Label(card, text="Enter city name:", font=('Helvetica', 11)).pack(pady=(10, 5))
-        
-        city_entry = ttk.Entry(card, width=25, font=('Helvetica', 11))
+
+        ttk.Label(card, text="Enter city name:", font=("Helvetica", 11)).pack(
+            pady=(10, 5)
+        )
+
+        city_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
         city_entry.pack(pady=5, padx=20, ipady=5)
-        
+
         submit_btn = ttk.Button(card, text="Get Weather", command=on_submit)
         submit_btn.pack(pady=10, ipadx=10, ipady=5)
-        
+
         city_entry.focus_set()
-    
+
     def update_conversation(self, speaker, text):
-        self.conversation_text.configure(state='normal')
-        
+        self.conversation_text.configure(state="normal")
+
         # Determine tag based on speaker
-        if speaker.lower() == "assistant" or speaker.lower() == "nova":
-            tag = 'assistant'
+        if speaker.lower() == "assistant" or speaker.lower() == "sayntex":
+            tag = "assistant"
         elif speaker.lower() == "user" or speaker.lower() == "you":
-            tag = 'user'
+            tag = "user"
         elif speaker.lower() == "system":
-            tag = 'system'
+            tag = "system"
         elif speaker.lower() == "news":
-            tag = 'news'
+            tag = "news"
         else:
-            tag = ''
-        
+            tag = ""
+
         self.conversation_text.insert(tk.END, f"{speaker}: {text}\n", tag)
         self.conversation_text.see(tk.END)
-        self.conversation_text.configure(state='disabled')
-    
+        self.conversation_text.configure(state="disabled")
+
     def speak(self, audio):
         """Speak out the given text and update the conversation display."""
-        self.update_conversation("NOVA", audio)
+        self.update_conversation("SAYNTEX", audio)
         self.engine.say(audio)
         self.engine.runAndWait()
-    
+
     def command(self):
         """Capture voice command from user."""
         r = sr.Recognizer()
@@ -325,7 +351,7 @@ class ModernVoiceAssistant:
             except sr.WaitTimeoutError:
                 self.update_conversation("System", "No speech detected, try again.")
                 return ""
-    
+
     def search_web(self, query, platform):
         """Searches Google, YouTube, or Maps based on the platform specified."""
         search_engines = {
@@ -337,7 +363,7 @@ class ModernVoiceAssistant:
         if platform in search_engines:
             webbrowser.open(search_engines[platform])
             self.speak(f"Searching {platform} for {query}")
-    
+
     def open_application(self, app_name):
         """Opens applications based on user command."""
         apps = {
@@ -357,11 +383,13 @@ class ModernVoiceAssistant:
                     subprocess.Popen([apps[app_name]])
                 self.speak(f"Opening {app_name}")
             except Exception as e:
-                self.update_conversation("System", f"Error opening {app_name}: {str(e)}")
+                self.update_conversation(
+                    "System", f"Error opening {app_name}: {str(e)}"
+                )
                 self.speak(f"Sorry, I couldn't open {app_name}")
         else:
             self.speak("Sorry, I couldn't find that application.")
-    
+
     def change_volume(self, action):
         """Control system volume."""
         if action == "increase":
@@ -378,7 +406,7 @@ class ModernVoiceAssistant:
         elif action == "unmute":
             ctypes.windll.user32.keybd_event(0xAD, 0, 0, 0)  # Unmute (same key as mute)
             self.speak("Volume unmuted")
-    
+
     def get_weather(self, city):
         """Fetches weather data for a given city."""
         try:
@@ -407,7 +435,7 @@ class ModernVoiceAssistant:
         except Exception as e:
             self.update_conversation("System", f"Error fetching weather: {str(e)}")
             self.speak("There was an error retrieving the weather.")
-    
+
     def send_email(self, to_email, subject, message):
         """Sends an email using SMTP."""
         from_email = os.getenv("EMAIL_ADDRESS")
@@ -425,7 +453,7 @@ class ModernVoiceAssistant:
         except Exception as e:
             self.update_conversation("System", f"Failed to send email: {str(e)}")
             self.speak("Sorry, I couldn't send the email.")
-    
+
     def dictate_to_file(self, filename="dictation.txt"):
         """Dictates spoken words and writes them into a text file."""
         self.speak(
@@ -440,17 +468,17 @@ class ModernVoiceAssistant:
                     break
                 elif spoken_text:
                     file.write(spoken_text + "\n")
-    
+
     def set_alarm(self):
         """Open the Clock app to set an alarm."""
         self.speak("I'll open the Clock app where you can set your alarm.")
         self.open_application("alarms")
-    
+
     def set_reminder(self):
         """Open the Clock app to set a reminder."""
         self.speak("I'll open the Clock app where you can set your reminder.")
         self.open_application("clock")
-    
+
     def play_music(self):
         """Play random music from predefined list."""
         self.speak("Playing Music!")
@@ -460,7 +488,7 @@ class ModernVoiceAssistant:
             "https://www.youtube.com/watch?v=1cDoRqPnCXU",
         ]
         webbrowser.open(random.choice(songs))
-    
+
     def get_news(self):
         """Fetch top news headlines using News API."""
         try:
@@ -487,15 +515,15 @@ class ModernVoiceAssistant:
         except Exception as e:
             self.update_conversation("System", f"Error fetching news: {str(e)}")
             self.speak("There was an error getting the news.")
-    
+
     def get_time(self):
         now_time = datetime.datetime.now().strftime("%H:%M")
         self.speak("Current time is " + now_time)
-    
+
     def get_date(self):
         now_date = datetime.datetime.now().strftime("%d-%m-%Y")
         self.speak("Today's date is " + now_date)
-    
+
     def main_process(self):
         """Main function to process commands."""
         while self.listening:
@@ -507,7 +535,13 @@ class ModernVoiceAssistant:
             if "hello" in request or "hi" in request or "hey" in request:
                 self.speak("Welcome! How can I assist you?")
 
-            elif "play music" in request or "play song" in request or "play a song" in request:
+            elif (
+                "play music" in request
+                or "play song" in request
+                or "play a song" in request
+                or "music" in request
+                or "song" in request
+            ):
                 self.play_music()
 
             elif "time" in request:
@@ -591,14 +625,18 @@ class ModernVoiceAssistant:
             elif "set reminder" in request or "create reminder" in request:
                 self.set_reminder()
 
-            elif "news" in request or "headlines" in request or "what's the news" in request:
+            elif (
+                "news" in request
+                or "headlines" in request
+                or "what's the news" in request
+            ):
                 self.get_news()
 
             elif "exit" in request or "stop" in request or "bye" in request:
                 self.speak("Goodbye! See you soon.")
                 self.listening = False
                 self.toggle_listening()  # Update button state
-    
+
     def exit_app(self):
         """Clean exit from the application."""
         self.listening = False
@@ -606,9 +644,10 @@ class ModernVoiceAssistant:
             self.assistant_thread.join(timeout=1)
         self.root.destroy()
 
+
 if __name__ == "__main__":
     root = tk.Tk()
-    
+
     # Set window icon
     try:
         img = Image.open("assistant_icon.png")
@@ -616,14 +655,13 @@ if __name__ == "__main__":
         root.iconphoto(False, photo)
     except:
         pass
-    
+
     # Configure the active button style
     style = ttk.Style()
-    style.configure('Active.TButton', 
-                  background='#CF6679', 
-                  foreground='white',
-                  borderwidth=0)
-    
+    style.configure(
+        "Active.TButton", background="#CF6679", foreground="white", borderwidth=0
+    )
+
     app = ModernVoiceAssistant(root)
     root.protocol("WM_DELETE_WINDOW", app.exit_app)
     root.mainloop()
