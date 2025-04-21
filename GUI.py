@@ -19,6 +19,11 @@ import tempfile
 import sounddevice as sd
 import scipy.io.wavfile
 import pywhatkit
+import wmi
+from deep_translator import GoogleTranslator
+from gtts import gTTS
+import pygame
+import tempfile
 from alarm_manager import AlarmManager
 
 # Load the variables from .env
@@ -1298,6 +1303,155 @@ class ModernVoiceAssistant:
         refresh_email_contacts()
         refresh_whatsapp_contacts()
 
+    def get_brightness(self):
+        """Get current screen brightness"""
+        try:
+            wmi_interface = wmi.WMI(namespace='wmi')
+            brightness_methods = wmi_interface.WmiMonitorBrightnessMethods()[0]
+            brightness = wmi_interface.WmiMonitorBrightness()[0].CurrentBrightness
+            return brightness
+        except Exception as e:
+            self.update_conversation("System", f"Error getting brightness: {str(e)}")
+            return None
+
+    def set_brightness(self, level):
+        """Set screen brightness (0-100)"""
+        try:
+            if not 0 <= level <= 100:
+                self.speak("Brightness level must be between 0 and 100")
+                return False
+
+            wmi_interface = wmi.WMI(namespace='wmi')
+            brightness_methods = wmi_interface.WmiMonitorBrightnessMethods()[0]
+            brightness_methods.WmiSetBrightness(level, 0)
+            return True
+        except Exception as e:
+            self.update_conversation("System", f"Error setting brightness: {str(e)}")
+            return False
+
+    def change_brightness(self, action):
+        """Control screen brightness"""
+        current_brightness = self.get_brightness()
+        if current_brightness is None:
+            self.speak("Sorry, I couldn't access the brightness settings")
+            return
+
+        if action == "increase":
+            new_brightness = min(100, current_brightness + 10)
+            if self.set_brightness(new_brightness):
+                self.speak(f"Brightness increased to {new_brightness}%")
+        elif action == "decrease":
+            new_brightness = max(0, current_brightness - 10)
+            if self.set_brightness(new_brightness):
+                self.speak(f"Brightness decreased to {new_brightness}%")
+        elif action == "get":
+            self.speak(f"Current brightness is {current_brightness}%")
+        elif action == "max":
+            if self.set_brightness(100):
+                self.speak("Brightness set to maximum")
+        elif action == "min":
+            if self.set_brightness(0):
+                self.speak("Brightness set to minimum")
+
+    def speak_translation(self, text, lang_code):
+        """Speak translated text using gTTS"""
+        try:
+            # Initialize pygame mixer
+            pygame.mixer.init()
+            
+            # Create a temporary file for the audio
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+                temp_filename = fp.name
+
+            # Generate speech
+            tts = gTTS(text=text, lang=lang_code, slow=False)
+            tts.save(temp_filename)
+
+            # Load and play the audio
+            pygame.mixer.music.load(temp_filename)
+            pygame.mixer.music.play()
+            
+            # Wait for the audio to finish playing
+            while pygame.mixer.music.get_busy():
+                pygame.time.Clock().tick(10)
+
+            # Clean up
+            pygame.mixer.music.unload()
+            pygame.mixer.quit()
+            os.unlink(temp_filename)
+            
+        except Exception as e:
+            self.update_conversation("System", f"Error speaking translation: {str(e)}")
+            # Fallback to regular speak
+            self.speak(text)
+
+    def translate_text(self, text, target_lang):
+        """Translate text to target language using Google Translate"""
+        try:
+            # Map language names to language codes
+            lang_codes = {
+                "hindi": "hi",
+                "marathi": "mr",
+                "tamil": "ta",
+                "telugu": "te",
+                "malayalam": "ml",
+                "kannada": "kn",
+                "bengali": "bn",
+                "gujarati": "gu",
+                "punjabi": "pa",
+                "urdu": "ur",
+                "sanskrit": "sa",
+                "odia": "or",
+                "assamese": "as",
+                "kashmiri": "ks",
+                "konkani": "kok",
+                "manipuri": "mni",
+                "nepali": "ne",
+                "sindhi": "sd"
+            }
+            
+            # Get language code
+            target_code = lang_codes.get(target_lang.lower())
+            if not target_code:
+                self.speak(f"Sorry, {target_lang} is not supported for translation")
+                return None
+            
+            # Translate text
+            translator = GoogleTranslator(source='en', target=target_code)
+            translated = translator.translate(text)
+            return translated, target_code
+        except Exception as e:
+            self.update_conversation("System", f"Translation error: {str(e)}")
+            return None, None
+
+    def voice_translate(self):
+        """Handle voice-based translation"""
+        # Ask for the text to translate
+        self.speak("What text would you like to translate?")
+        text = self.command()
+        if not text:
+            self.speak("I couldn't hear the text. Please try again.")
+            return
+
+        # Ask for the target language
+        self.speak("Which language would you like to translate to?")
+        target_lang = self.command()
+        if not target_lang:
+            self.speak("I couldn't hear the language. Please try again.")
+            return
+
+        # Translate the text
+        result = self.translate_text(text, target_lang)
+        if result:
+            translated, lang_code = result
+            # Display both original and translated text
+            self.update_conversation("You", f"Original text: {text}")
+            self.update_conversation("SAYNTEX", f"Translated text: {translated}")
+            # self.speak("Here is the translation")
+            self.speak_translation(translated, lang_code)
+        else:
+            self.speak("Sorry, I couldn't translate the text. Please try again.")
+
     def main_process(self):
         """Main function to process commands."""
         while self.listening:
@@ -1308,6 +1462,9 @@ class ModernVoiceAssistant:
 
             if "hello" in request or "hi" in request or "hey" in request:
                 self.speak("Welcome! How can I assist you?")
+
+            elif "translate" in request:
+                self.voice_translate()
 
             elif "play music" in request or "play song" in request:
                 self.speak("Playing song for you.")
@@ -1359,6 +1516,21 @@ class ModernVoiceAssistant:
 
             elif "unmute volume" in request:
                 self.change_volume("unmute")
+
+            elif "increase brightness" in request:
+                self.change_brightness("increase")
+
+            elif "decrease brightness" in request:
+                self.change_brightness("decrease")
+
+            elif "maximum brightness" in request or "brightness maximum" in request:
+                self.change_brightness("max")
+
+            elif "minimum brightness" in request or "brightness minimum" in request:
+                self.change_brightness("min")
+
+            elif "what is the brightness" in request or "current brightness" in request:
+                self.change_brightness("get")
 
             elif "weather" in request or "what's the weather" in request:
                 self.speak("Which city's weather would you like to know?")
