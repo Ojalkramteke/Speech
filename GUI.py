@@ -114,6 +114,20 @@ class ModernVoiceAssistant:
             "Card.TFrame", background=self.card_color, borderwidth=2, relief="flat"
         )
 
+        # Configure Accent button style
+        self.style.configure(
+            "Accent.TButton",
+            background=self.accent_color,
+            foreground="black",
+            font=("Helvetica", 10, "bold"),
+            padding=5
+        )
+        self.style.map(
+            "Accent.TButton",
+            background=[("active", self.highlight_color)],
+            foreground=[("active", "white")]
+        )
+
     def create_widgets(self):
         # Main container
         main_container = ttk.Frame(self.root)
@@ -215,12 +229,10 @@ class ModernVoiceAssistant:
                 "Get News",
                 "Open Notepad",
                 "Open Calculator",
-                # "Set Alarm",
-                # "Manage Alarms",
                 "Tell a Joke",
                 "Set Reminder",
                 "Manage Reminders",
-                # "Play Music",
+                "Manage Contacts",
             ],
             state="readonly",
             font=("Helvetica", 10),
@@ -282,71 +294,14 @@ class ModernVoiceAssistant:
             self.open_application("notepad")
         elif action == "Open Calculator":
             self.open_application("calculator")
-        # elif action == "Set Alarm":
-        #     self.show_manual_alarm_input()
-        # elif action == "Manage Alarms":
-        #     self.manage_alarms()
         elif action == "Set Reminder":
             self.show_manual_reminder_input()
         elif action == "Manage Reminders":
             self.manage_reminders()
         elif action == "Tell a Joke":
             self.get_joke()
-        # elif action == "Play Music":
-        #     self.play_music()
-
-    # def show_manual_alarm_input(self):
-    #     """Show manual alarm input form"""
-    #     alarm_window = tk.Toplevel(self.root)
-    #     alarm_window.title("Set Alarm")
-    #     alarm_window.geometry("400x500")
-    #     alarm_window.configure(bg=self.bg_color)
-    #     alarm_window.resizable(False, False)
-
-    #     # Center the window
-    #     window_width = alarm_window.winfo_reqwidth()
-    #     window_height = alarm_window.winfo_reqheight()
-    #     position_right = int(alarm_window.winfo_screenwidth() / 2 - window_width / 2)
-    #     position_down = int(alarm_window.winfo_screenheight() / 2 - window_height / 2)
-    #     alarm_window.geometry(f"+{position_right}+{position_down}")
-
-    #     card = ttk.Frame(alarm_window, style="Card.TFrame")
-    #     card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-    #     # Time entry
-    #     ttk.Label(card, text="Time (HH:MM):", font=("Helvetica", 11)).pack(pady=(10, 5))
-    #     time_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-    #     time_entry.pack(pady=5, padx=20, ipady=5)
-    #     time_entry.insert(0, "00:00")  # Default time
-
-    #     # Days selection
-    #     ttk.Label(card, text="Days:", font=("Helvetica", 11)).pack(pady=(10, 5))
-    #     days_frame = ttk.Frame(card)
-    #     days_frame.pack(pady=5, padx=20)
-        
-    #     day_vars = {}
-    #     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    #     for day in days:
-    #         var = tk.BooleanVar()
-    #         day_vars[day] = var
-    #         ttk.Checkbutton(days_frame, text=day, variable=var).pack(anchor=tk.W)
-
-    #     # Label entry
-    #     ttk.Label(card, text="Label:", font=("Helvetica", 11)).pack(pady=(10, 5))
-    #     label_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-    #     label_entry.pack(pady=5, padx=20, ipady=5)
-
-    #     # Buttons frame
-    #     buttons_frame = ttk.Frame(card)
-    #     buttons_frame.pack(pady=20)
-
-    #     # Voice input button
-    #     voice_btn = ttk.Button(buttons_frame, text="🎤 Voice Input", command=lambda: [alarm_window.destroy(), self.set_alarm()])
-    #     voice_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
-
-    #     # Submit button
-    #     submit_btn = ttk.Button(buttons_frame, text="Set Alarm", command=lambda: self.on_submit_alarm(time_entry.get(), day_vars, label_entry.get(), alarm_window))
-    #     submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
+        elif action == "Manage Contacts":
+            self.manage_contacts()
 
     def show_manual_reminder_input(self):
         """Show manual reminder input form"""
@@ -394,28 +349,6 @@ class ModernVoiceAssistant:
         # Submit button
         submit_btn = ttk.Button(buttons_frame, text="Set Reminder", command=lambda: self.on_submit_reminder(date_entry.get(), time_entry.get(), label_entry.get(), reminder_window))
         submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
-
-    # def on_submit_alarm(self, time_str, day_vars, label, window):
-    #     """Handle alarm submission from manual input"""
-    #     try:
-    #         days = [day for day, var in day_vars.items() if var.get()]
-            
-    #         if not time_str or not days or not label:
-    #             messagebox.showerror("Error", "Please fill in all fields")
-    #             return
-            
-    #         # Validate time format
-    #         try:
-    #             datetime.datetime.strptime(time_str, "%H:%M")
-    #         except ValueError:
-    #             messagebox.showerror("Error", "Time must be in HH:MM format (e.g., 14:30)")
-    #             return
-            
-    #         self.alarm_manager.create_alarm(time_str, days, label)
-    #         self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
-    #         window.destroy()
-    #     except Exception as e:
-    #         messagebox.showerror("Error", f"Failed to set alarm: {str(e)}")
 
     def on_submit_reminder(self, date_str, time_str, label, window):
         """Handle reminder submission from manual input"""
@@ -731,138 +664,6 @@ class ModernVoiceAssistant:
             print(f"Error parsing date: {e}")
             return None
 
-    # def set_alarm(self):
-    #     """Create a new alarm through GUI"""
-    #     def show_manual_input():
-    #         alarm_window = tk.Toplevel(self.root)
-    #         alarm_window.title("Set Alarm")
-    #         alarm_window.geometry("400x500")
-    #         alarm_window.configure(bg=self.bg_color)
-    #         alarm_window.resizable(False, False)
-
-    #         # Center the window
-    #         window_width = alarm_window.winfo_reqwidth()
-    #         window_height = alarm_window.winfo_reqheight()
-    #         position_right = int(alarm_window.winfo_screenwidth() / 2 - window_width / 2)
-    #         position_down = int(alarm_window.winfo_screenheight() / 2 - window_height / 2)
-    #         alarm_window.geometry(f"+{position_right}+{position_down}")
-
-    #         card = ttk.Frame(alarm_window, style="Card.TFrame")
-    #         card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-    #         # Time entry
-    #         ttk.Label(card, text="Time (HH:MM):", font=("Helvetica", 11)).pack(pady=(10, 5))
-    #         time_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-    #         time_entry.pack(pady=5, padx=20, ipady=5)
-    #         time_entry.insert(0, "00:00")  # Default time
-
-    #         # Days selection
-    #         ttk.Label(card, text="Days:", font=("Helvetica", 11)).pack(pady=(10, 5))
-    #         days_frame = ttk.Frame(card)
-    #         days_frame.pack(pady=5, padx=20)
-            
-    #         day_vars = {}
-    #         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    #         for day in days:
-    #             var = tk.BooleanVar()
-    #             day_vars[day] = var
-    #             ttk.Checkbutton(days_frame, text=day, variable=var).pack(anchor=tk.W)
-
-    #         # Label entry
-    #         ttk.Label(card, text="Label:", font=("Helvetica", 11)).pack(pady=(10, 5))
-    #         label_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-    #         label_entry.pack(pady=5, padx=20, ipady=5)
-
-    #         # Buttons frame
-    #         buttons_frame = ttk.Frame(card)
-    #         buttons_frame.pack(pady=20)
-
-    #         # Voice input button
-    #         voice_btn = ttk.Button(buttons_frame, text="🎤 Voice Input", command=lambda: [alarm_window.destroy(), self.set_alarm()])
-    #         voice_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
-
-    #         # Submit button
-    #         submit_btn = ttk.Button(buttons_frame, text="Set Alarm", command=lambda: self.on_submit_alarm(time_entry.get(), day_vars, label_entry.get(), alarm_window))
-    #         submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
-
-    #     def on_submit(time_str, day_vars, label, window):
-    #         try:
-    #             days = [day for day, var in day_vars.items() if var.get()]
-                
-    #             if not time_str or not days or not label:
-    #                 messagebox.showerror("Error", "Please fill in all fields")
-    #                 return
-                
-    #             # Validate time format
-    #             try:
-    #                 datetime.datetime.strptime(time_str, "%H:%M")
-    #             except ValueError:
-    #                 messagebox.showerror("Error", "Time must be in HH:MM format (e.g., 14:30)")
-    #                 return
-                
-    #             self.alarm_manager.create_alarm(time_str, days, label)
-    #             self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
-    #             window.destroy()
-    #         except Exception as e:
-    #             messagebox.showerror("Error", f"Failed to set alarm: {str(e)}")
-
-    #     def voice_input():
-    #         self.speak("What time would you like to set the alarm for?")
-    #         spoken_time = self.command()
-    #         if not spoken_time:
-    #             self.speak("I couldn't hear the time. Would you like to enter it manually?")
-    #             if "yes" in self.command().lower():
-    #                 show_manual_input()
-    #             return
-
-    #         time_str = self.parse_spoken_time(spoken_time)
-    #         if not time_str:
-    #             self.speak("I couldn't understand the time. Would you like to enter it manually?")
-    #             if "yes" in self.command().lower():
-    #                 show_manual_input()
-    #             return
-
-    #         self.speak("Which days would you like the alarm to repeat? Say 'every day' for all days, or list specific days.")
-    #         days_input = self.command().lower()
-    #         if not days_input:
-    #             self.speak("I couldn't hear the days. Would you like to enter them manually?")
-    #             if "yes" in self.command().lower():
-    #                 show_manual_input()
-    #             return
-
-    #         days = []
-    #         if "every day" in days_input:
-    #             days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-    #         else:
-    #             for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]:
-    #                 if day in days_input:
-    #                     days.append(day.capitalize())
-    #             if not days:
-    #                 self.speak("I couldn't understand the days. Would you like to enter them manually?")
-    #                 if "yes" in self.command().lower():
-    #                     show_manual_input()
-    #                 return
-
-    #         self.speak("What would you like to label this alarm?")
-    #         label = self.command()
-    #         if not label:
-    #             self.speak("I couldn't hear the label. Would you like to enter it manually?")
-    #             if "yes" in self.command().lower():
-    #                 show_manual_input()
-    #             return
-
-    #         try:
-    #             self.alarm_manager.create_alarm(time_str, days, label)
-    #             self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
-    #         except Exception as e:
-    #             self.speak(f"Sorry, I couldn't set the alarm. Error: {str(e)}")
-    #             self.speak("Would you like to try entering it manually?")
-    #             if "yes" in self.command().lower():
-    #                 show_manual_input()
-
-    #     # Start with voice input by default
-    #     voice_input()
-
     def set_reminder(self):
         """Create a new reminder through GUI"""
         def show_manual_input():
@@ -991,84 +792,6 @@ class ModernVoiceAssistant:
 
         # Start with voice input by default
         voice_input()
-
-    # def manage_alarms(self):
-    #     """Show and manage existing alarms"""
-    #     def delete_alarm(alarm_id):
-    #         try:
-    #             if self.alarm_manager.delete_alarm(alarm_id):
-    #                 self.speak("Alarm deleted")
-    #                 refresh_alarms()
-    #             else:
-    #                 self.speak("Failed to delete alarm")
-    #         except Exception as e:
-    #             messagebox.showerror("Error", f"Failed to delete alarm: {str(e)}")
-
-        # def toggle_alarm(alarm_id):
-        #     try:
-        #         alarm = next((a for a in self.alarm_manager.alarms if a.id == alarm_id), None)
-        #         if alarm:
-        #             alarm = self.alarm_manager.edit_alarm(alarm_id, is_active=not alarm.is_active)
-        #             if alarm:
-        #                 status = "activated" if alarm.is_active else "deactivated"
-        #                 self.speak(f"Alarm {status}")
-        #                 refresh_alarms()
-        #     except Exception as e:
-        #         messagebox.showerror("Error", f"Failed to toggle alarm: {str(e)}")
-
-        # def refresh_alarms():
-        #     # Clear existing items
-        #     for widget in alarms_frame.winfo_children():
-        #         widget.destroy()
-
-        #     # Add alarms
-        #     for alarm in self.alarm_manager.alarms:
-        #         alarm_frame = ttk.Frame(alarms_frame, style="Card.TFrame")
-        #         alarm_frame.pack(fill=tk.X, pady=5, padx=5)
-
-        #         ttk.Label(
-        #             alarm_frame,
-        #             text=f"{alarm.time} - {alarm.label} ({', '.join(alarm.days)})",
-        #             font=("Helvetica", 10)
-        #         ).pack(side=tk.LEFT, padx=5)
-
-        #         status = "Active" if alarm.is_active else "Inactive"
-        #         ttk.Button(
-        #             alarm_frame,
-        #             text=status,
-        #             command=lambda id=alarm.id: toggle_alarm(id)
-        #         ).pack(side=tk.LEFT, padx=5)
-
-        #         ttk.Button(
-        #             alarm_frame,
-        #             text="Delete",
-        #             command=lambda id=alarm.id: delete_alarm(id)
-        #         ).pack(side=tk.RIGHT, padx=5)
-
-        # manage_window = tk.Toplevel(self.root)
-        # manage_window.title("Manage Alarms")
-        # manage_window.geometry("500x400")
-        # manage_window.configure(bg=self.bg_color)
-
-        # # Center the window
-        # window_width = manage_window.winfo_reqwidth()
-        # window_height = manage_window.winfo_reqheight()
-        # position_right = int(manage_window.winfo_screenwidth() / 2 - window_width / 2)
-        # position_down = int(manage_window.winfo_screenheight() / 2 - window_height / 2)
-        # manage_window.geometry(f"+{position_right}+{position_down}")
-
-        # # Add new alarm button
-        # ttk.Button(
-        #     manage_window,
-        #     text="Add New Alarm",
-        #     command=self.set_alarm
-        # ).pack(pady=10)
-
-        # # Alarms list
-        # alarms_frame = ttk.Frame(manage_window)
-        # alarms_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # refresh_alarms()
 
     def manage_reminders(self):
         """Show and manage existing reminders"""
@@ -1233,6 +956,303 @@ class ModernVoiceAssistant:
             self.speak("Sorry, I couldn't send the WhatsApp message.")
             return False
 
+    def manage_contacts(self):
+        """Show and manage email and WhatsApp contacts"""
+        contacts_window = tk.Toplevel(self.root)
+        contacts_window.title("Manage Contacts")
+        contacts_window.geometry("800x600")
+        contacts_window.configure(bg=self.bg_color)
+        contacts_window.resizable(False, False)
+
+        # Center the window
+        window_width = contacts_window.winfo_reqwidth()
+        window_height = contacts_window.winfo_reqheight()
+        position_right = int(contacts_window.winfo_screenwidth() / 2 - window_width / 2)
+        position_down = int(contacts_window.winfo_screenheight() / 2 - window_height / 2)
+        contacts_window.geometry(f"+{position_right}+{position_down}")
+
+        # Create notebook for tabs
+        notebook = ttk.Notebook(contacts_window)
+        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Email Contacts Tab
+        email_frame = ttk.Frame(notebook, style="Card.TFrame")
+        notebook.add(email_frame, text="Email Contacts")
+
+        # WhatsApp Contacts Tab
+        whatsapp_frame = ttk.Frame(notebook, style="Card.TFrame")
+        notebook.add(whatsapp_frame, text="WhatsApp Contacts")
+
+        def refresh_email_contacts():
+            # Clear existing items
+            for widget in email_frame.winfo_children():
+                widget.destroy()
+
+            # Add header
+            header_frame = ttk.Frame(email_frame)
+            header_frame.pack(fill=tk.X, padx=5, pady=5)
+            
+            ttk.Label(header_frame, text="Name", font=("Helvetica", 10, "bold")).pack(side=tk.LEFT, padx=5)
+            ttk.Label(header_frame, text="Email", font=("Helvetica", 10, "bold")).pack(side=tk.LEFT, padx=5)
+
+            # Add contacts
+            for name, email in self.email_contacts.items():
+                contact_frame = ttk.Frame(email_frame, style="Card.TFrame")
+                contact_frame.pack(fill=tk.X, pady=2, padx=5)
+
+                ttk.Label(contact_frame, text=name, font=("Helvetica", 10)).pack(side=tk.LEFT, padx=5)
+                ttk.Label(contact_frame, text=email, font=("Helvetica", 10)).pack(side=tk.LEFT, padx=5)
+
+                ttk.Button(
+                    contact_frame,
+                    text="Edit",
+                    command=lambda n=name, e=email: edit_email_contact(n, e)
+                ).pack(side=tk.RIGHT, padx=2)
+
+                ttk.Button(
+                    contact_frame,
+                    text="Delete",
+                    command=lambda n=name: delete_email_contact(n)
+                ).pack(side=tk.RIGHT, padx=2)
+
+            # Add new contact button
+            ttk.Button(
+                email_frame,
+                text="Add New Email Contact",
+                command=lambda: edit_email_contact()
+            ).pack(pady=10)
+
+        def refresh_whatsapp_contacts():
+            # Clear existing items
+            for widget in whatsapp_frame.winfo_children():
+                widget.destroy()
+
+            # Add header
+            header_frame = ttk.Frame(whatsapp_frame)
+            header_frame.pack(fill=tk.X, padx=5, pady=5)
+            
+            ttk.Label(header_frame, text="Name", font=("Helvetica", 10, "bold")).pack(side=tk.LEFT, padx=5)
+            ttk.Label(header_frame, text="Phone", font=("Helvetica", 10, "bold")).pack(side=tk.LEFT, padx=5)
+
+            # Add contacts
+            for name, phone in self.whatsapp_contacts.items():
+                contact_frame = ttk.Frame(whatsapp_frame, style="Card.TFrame")
+                contact_frame.pack(fill=tk.X, pady=2, padx=5)
+
+                ttk.Label(contact_frame, text=name, font=("Helvetica", 10)).pack(side=tk.LEFT, padx=5)
+                ttk.Label(contact_frame, text=phone, font=("Helvetica", 10)).pack(side=tk.LEFT, padx=5)
+
+                ttk.Button(
+                    contact_frame,
+                    text="Edit",
+                    command=lambda n=name, p=phone: edit_whatsapp_contact(n, p)
+                ).pack(side=tk.RIGHT, padx=2)
+
+                ttk.Button(
+                    contact_frame,
+                    text="Delete",
+                    command=lambda n=name: delete_whatsapp_contact(n)
+                ).pack(side=tk.RIGHT, padx=2)
+
+            # Add new contact button
+            ttk.Button(
+                whatsapp_frame,
+                text="Add New WhatsApp Contact",
+                command=lambda: edit_whatsapp_contact()
+            ).pack(pady=10)
+
+        def edit_email_contact(name=None, email=None):
+            edit_window = tk.Toplevel(contacts_window)
+            edit_window.title("Edit Email Contact")
+            edit_window.geometry("400x500")
+            edit_window.configure(bg=self.bg_color)
+            edit_window.resizable(True, True)  # Make window resizable
+
+            # Center the window
+            window_width = edit_window.winfo_reqwidth()
+            window_height = edit_window.winfo_reqheight()
+            position_right = int(edit_window.winfo_screenwidth() / 2 - window_width / 2)
+            position_down = int(edit_window.winfo_screenheight() / 2 - window_height / 2)
+            edit_window.geometry(f"+{position_right}+{position_down}")
+
+            # Set minimum size
+            edit_window.minsize(400, 250)
+
+            card = ttk.Frame(edit_window, style="Card.TFrame")
+            card.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)  # Increased padding
+
+            # Title label
+            title_label = ttk.Label(
+                card,
+                text="Edit Email Contact",
+                font=("Helvetica", 14, "bold")
+            )
+            title_label.pack(pady=(0, 20))
+
+            # Form frame
+            form_frame = ttk.Frame(card)
+            form_frame.pack(fill=tk.BOTH, expand=True, padx=20)
+
+            ttk.Label(form_frame, text="Name:", font=("Helvetica", 11)).pack(pady=(10, 5))
+            name_entry = ttk.Entry(form_frame, width=35, font=("Helvetica", 11))  # Increased width
+            name_entry.pack(pady=5, padx=20, ipady=5)
+            if name:
+                name_entry.insert(0, name)
+
+            ttk.Label(form_frame, text="Email:", font=("Helvetica", 11)).pack(pady=(10, 5))
+            email_entry = ttk.Entry(form_frame, width=35, font=("Helvetica", 11))  # Increased width
+            email_entry.pack(pady=5, padx=20, ipady=5)
+            if email:
+                email_entry.insert(0, email)
+
+            def save_contact():
+                new_name = name_entry.get().strip().lower()
+                new_email = email_entry.get().strip()
+                
+                if not new_name or not new_email:
+                    messagebox.showerror("Error", "Please fill in all fields")
+                    return
+                
+                if name and name != new_name:
+                    del self.email_contacts[name]
+                
+                self.email_contacts[new_name] = new_email
+                refresh_email_contacts()
+                edit_window.destroy()
+
+            # Buttons frame with more padding
+            buttons_frame = ttk.Frame(card)
+            buttons_frame.pack(pady=20, padx=20, fill=tk.X)  # Increased padding
+
+            # Save button with custom style
+            save_btn = ttk.Button(
+                buttons_frame,
+                text="Save (Ctrl+S)",
+                command=save_contact,
+                style="Accent.TButton"
+            )
+            save_btn.pack(side=tk.LEFT, padx=10, ipadx=20, ipady=5)  # Increased padding
+
+            # Cancel button
+            cancel_btn = ttk.Button(
+                buttons_frame,
+                text="Cancel (Esc)",
+                command=edit_window.destroy
+            )
+            cancel_btn.pack(side=tk.LEFT, padx=10, ipadx=20, ipady=5)  # Increased padding
+
+            # Configure keyboard shortcuts
+            edit_window.bind("<Control-s>", lambda e: save_contact())
+            edit_window.bind("<Escape>", lambda e: edit_window.destroy())
+
+            # Focus the name entry
+            name_entry.focus_set()
+
+        def edit_whatsapp_contact(name=None, phone=None):
+            edit_window = tk.Toplevel(contacts_window)
+            edit_window.title("Edit WhatsApp Contact")
+            edit_window.geometry("400x500")
+            edit_window.configure(bg=self.bg_color)
+            edit_window.resizable(True, True)  # Make window resizable
+
+            # Center the window
+            window_width = edit_window.winfo_reqwidth()
+            window_height = edit_window.winfo_reqheight()
+            position_right = int(edit_window.winfo_screenwidth() / 2 - window_width / 2)
+            position_down = int(edit_window.winfo_screenheight() / 2 - window_height / 2)
+            edit_window.geometry(f"+{position_right}+{position_down}")
+
+            # Set minimum size
+            edit_window.minsize(400, 250)
+
+            card = ttk.Frame(edit_window, style="Card.TFrame")
+            card.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)  # Increased padding
+
+            # Title label
+            title_label = ttk.Label(
+                card,
+                text="Edit WhatsApp Contact",
+                font=("Helvetica", 14, "bold")
+            )
+            title_label.pack(pady=(0, 20))
+
+            # Form frame
+            form_frame = ttk.Frame(card)
+            form_frame.pack(fill=tk.BOTH, expand=True, padx=20)
+
+            ttk.Label(form_frame, text="Name:", font=("Helvetica", 11)).pack(pady=(10, 5))
+            name_entry = ttk.Entry(form_frame, width=35, font=("Helvetica", 11))  # Increased width
+            name_entry.pack(pady=5, padx=20, ipady=5)
+            if name:
+                name_entry.insert(0, name)
+
+            ttk.Label(form_frame, text="Phone:", font=("Helvetica", 11)).pack(pady=(10, 5))
+            phone_entry = ttk.Entry(form_frame, width=35, font=("Helvetica", 11))  # Increased width
+            phone_entry.pack(pady=5, padx=20, ipady=5)
+            if phone:
+                phone_entry.insert(0, phone)
+
+            def save_contact():
+                new_name = name_entry.get().strip().lower()
+                new_phone = phone_entry.get().strip()
+                
+                if not new_name or not new_phone:
+                    messagebox.showerror("Error", "Please fill in all fields")
+                    return
+                
+                if not new_phone.isdigit() or len(new_phone) != 10:
+                    messagebox.showerror("Error", "Phone number must be 10 digits")
+                    return
+                
+                if name and name != new_name:
+                    del self.whatsapp_contacts[name]
+                
+                self.whatsapp_contacts[new_name] = new_phone
+                refresh_whatsapp_contacts()
+                edit_window.destroy()
+
+            # Buttons frame with more padding
+            buttons_frame = ttk.Frame(card)
+            buttons_frame.pack(pady=20, padx=20, fill=tk.X)  # Increased padding
+
+            # Save button with custom style
+            save_btn = ttk.Button(
+                buttons_frame,
+                text="Save (Ctrl+S)",
+                command=save_contact,
+                style="Accent.TButton"
+            )
+            save_btn.pack(side=tk.LEFT, padx=10, ipadx=20, ipady=5)  # Increased padding
+
+            # Cancel button
+            cancel_btn = ttk.Button(
+                buttons_frame,
+                text="Cancel (Esc)",
+                command=edit_window.destroy
+            )
+            cancel_btn.pack(side=tk.LEFT, padx=10, ipadx=20, ipady=5)  # Increased padding
+
+            # Configure keyboard shortcuts
+            edit_window.bind("<Control-s>", lambda e: save_contact())
+            edit_window.bind("<Escape>", lambda e: edit_window.destroy())
+
+            # Focus the name entry
+            name_entry.focus_set()
+
+        def delete_email_contact(name):
+            if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete {name}?"):
+                del self.email_contacts[name]
+                refresh_email_contacts()
+
+        def delete_whatsapp_contact(name):
+            if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete {name}?"):
+                del self.whatsapp_contacts[name]
+                refresh_whatsapp_contacts()
+
+        # Initial refresh
+        refresh_email_contacts()
+        refresh_whatsapp_contacts()
+
     def main_process(self):
         """Main function to process commands."""
         while self.listening:
@@ -1355,6 +1375,9 @@ class ModernVoiceAssistant:
             
             elif "tell me a joke" in request or "joke" in request or "tell me another joke" in request:
                 self.get_joke()
+
+            elif "manage contacts" in request or "edit contacts" in request:
+                self.manage_contacts()
 
             elif "exit" in request or "stop" in request or "bye" in request:
                 self.speak("Goodbye! See you soon.")
