@@ -902,12 +902,57 @@ class ModernVoiceAssistant:
             self.speak("There was an error getting the news.")
 
     def get_time(self):
-        now_time = datetime.datetime.now().strftime("%H:%M")
-        self.speak("Current time is " + now_time)
+        """Get and speak the current time in a natural format"""
+        now = datetime.datetime.now()
+        hour = now.hour
+        minute = now.minute
+        
+        # Convert to 12-hour format
+        period = "AM" if hour < 12 else "PM"
+        hour = hour % 12
+        if hour == 0:
+            hour = 12
+            
+        # Format minutes with leading zero if needed
+        minute_str = f"{minute:02d}"
+        
+        # Create natural language response
+        if minute == 0:
+            time_str = f"{hour} o'clock {period}"
+        elif minute == 15:
+            time_str = f"quarter past {hour} {period}"
+        elif minute == 30:
+            time_str = f"half past {hour} {period}"
+        elif minute == 45:
+            time_str = f"quarter to {hour + 1 if hour < 12 else 1} {period}"
+        else:
+            time_str = f"{hour}:{minute_str} {period}"
+            
+        self.speak(f"The current time is {time_str}")
 
     def get_date(self):
-        now_date = datetime.datetime.now().strftime("%d-%m-%Y")
-        self.speak("Today's date is " + now_date)
+        """Get and speak the current date in a natural format"""
+        now = datetime.datetime.now()
+        
+        # Get day of week
+        day_of_week = now.strftime("%A")
+        
+        # Get month name
+        month = now.strftime("%B")
+        
+        # Get day with ordinal suffix
+        day = now.day
+        if 4 <= day <= 20 or 24 <= day <= 30:
+            suffix = "th"
+        else:
+            suffix = ["st", "nd", "rd"][day % 10 - 1 if day % 10 <= 3 else 0]
+            
+        # Get year
+        year = now.year
+        
+        # Create natural language response
+        date_str = f"{day_of_week}, {month} {day}{suffix}, {year}"
+        self.speak(f"Today is {date_str}")
 
     def get_joke(self):
         """Fetch a random joke from a joke API"""
