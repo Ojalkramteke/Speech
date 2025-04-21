@@ -206,11 +206,12 @@ class ModernVoiceAssistant:
                 "Get News",
                 "Open Notepad",
                 "Open Calculator",
-                "Set Alarm",
-                "Manage Alarms",
+                # "Set Alarm",
+                # "Manage Alarms",
+                "Tell a Joke",
                 "Set Reminder",
                 "Manage Reminders",
-                "Play Music",
+                # "Play Music",
             ],
             state="readonly",
             font=("Helvetica", 10),
@@ -272,69 +273,71 @@ class ModernVoiceAssistant:
             self.open_application("notepad")
         elif action == "Open Calculator":
             self.open_application("calculator")
-        elif action == "Set Alarm":
-            self.show_manual_alarm_input()
-        elif action == "Manage Alarms":
-            self.manage_alarms()
+        # elif action == "Set Alarm":
+        #     self.show_manual_alarm_input()
+        # elif action == "Manage Alarms":
+        #     self.manage_alarms()
         elif action == "Set Reminder":
             self.show_manual_reminder_input()
         elif action == "Manage Reminders":
             self.manage_reminders()
-        elif action == "Play Music":
-            self.play_music()
+        elif action == "Tell a Joke":
+            self.get_joke()
+        # elif action == "Play Music":
+        #     self.play_music()
 
-    def show_manual_alarm_input(self):
-        """Show manual alarm input form"""
-        alarm_window = tk.Toplevel(self.root)
-        alarm_window.title("Set Alarm")
-        alarm_window.geometry("400x500")
-        alarm_window.configure(bg=self.bg_color)
-        alarm_window.resizable(False, False)
+    # def show_manual_alarm_input(self):
+    #     """Show manual alarm input form"""
+    #     alarm_window = tk.Toplevel(self.root)
+    #     alarm_window.title("Set Alarm")
+    #     alarm_window.geometry("400x500")
+    #     alarm_window.configure(bg=self.bg_color)
+    #     alarm_window.resizable(False, False)
 
-        # Center the window
-        window_width = alarm_window.winfo_reqwidth()
-        window_height = alarm_window.winfo_reqheight()
-        position_right = int(alarm_window.winfo_screenwidth() / 2 - window_width / 2)
-        position_down = int(alarm_window.winfo_screenheight() / 2 - window_height / 2)
-        alarm_window.geometry(f"+{position_right}+{position_down}")
+    #     # Center the window
+    #     window_width = alarm_window.winfo_reqwidth()
+    #     window_height = alarm_window.winfo_reqheight()
+    #     position_right = int(alarm_window.winfo_screenwidth() / 2 - window_width / 2)
+    #     position_down = int(alarm_window.winfo_screenheight() / 2 - window_height / 2)
+    #     alarm_window.geometry(f"+{position_right}+{position_down}")
 
-        card = ttk.Frame(alarm_window, style="Card.TFrame")
-        card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+    #     card = ttk.Frame(alarm_window, style="Card.TFrame")
+    #     card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        # Time entry
-        ttk.Label(card, text="Time (HH:MM):", font=("Helvetica", 11)).pack(pady=(10, 5))
-        time_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-        time_entry.pack(pady=5, padx=20, ipady=5)
-        time_entry.insert(0, "00:00")  # Default time
+    #     # Time entry
+    #     ttk.Label(card, text="Time (HH:MM):", font=("Helvetica", 11)).pack(pady=(10, 5))
+    #     time_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
+    #     time_entry.pack(pady=5, padx=20, ipady=5)
+    #     time_entry.insert(0, "00:00")  # Default time
 
-        # Days selection
-        ttk.Label(card, text="Days:", font=("Helvetica", 11)).pack(pady=(10, 5))
-        days_frame = ttk.Frame(card)
-        days_frame.pack(pady=5, padx=20)
+    #     # Days selection
+    #     ttk.Label(card, text="Days:", font=("Helvetica", 11)).pack(pady=(10, 5))
+    #     days_frame = ttk.Frame(card)
+    #     days_frame.pack(pady=5, padx=20)
         
-        day_vars = {}
-        days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-        for day in days:
-            var = tk.BooleanVar()
-            day_vars[day] = var
-            ttk.Checkbutton(days_frame, text=day, variable=var).pack(anchor=tk.W)
+    #     day_vars = {}
+    #     days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    #     for day in days:
+    #         var = tk.BooleanVar()
+    #         day_vars[day] = var
+    #         ttk.Checkbutton(days_frame, text=day, variable=var).pack(anchor=tk.W)
 
-        # Label entry
-        ttk.Label(card, text="Label:", font=("Helvetica", 11)).pack(pady=(10, 5))
-        label_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-        label_entry.pack(pady=5, padx=20, ipady=5)
+    #     # Label entry
+    #     ttk.Label(card, text="Label:", font=("Helvetica", 11)).pack(pady=(10, 5))
+    #     label_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
+    #     label_entry.pack(pady=5, padx=20, ipady=5)
 
-        # Buttons frame
-        buttons_frame = ttk.Frame(card)
-        buttons_frame.pack(pady=20)
+    #     # Buttons frame
+    #     buttons_frame = ttk.Frame(card)
+    #     buttons_frame.pack(pady=20)
 
-        # Voice input button
-        voice_btn = ttk.Button(buttons_frame, text="🎤 Voice Input", command=lambda: [alarm_window.destroy(), self.set_alarm()])
-        voice_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
+    #     # Voice input button
+    #     voice_btn = ttk.Button(buttons_frame, text="🎤 Voice Input", command=lambda: [alarm_window.destroy(), self.set_alarm()])
+    #     voice_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
 
-        # Submit button
-        submit_btn = ttk.Button(buttons_frame, text="Set Alarm", command=lambda: self.on_submit_alarm(time_entry.get(), day_vars, label_entry.get(), alarm_window))
-        submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
+    #     # Submit button
+    #     submit_btn = ttk.Button(buttons_frame, text="Set Alarm", command=lambda: self.on_submit_alarm(time_entry.get(), day_vars, label_entry.get(), alarm_window))
+    #     submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
 
     def show_manual_reminder_input(self):
         """Show manual reminder input form"""
@@ -383,27 +386,27 @@ class ModernVoiceAssistant:
         submit_btn = ttk.Button(buttons_frame, text="Set Reminder", command=lambda: self.on_submit_reminder(date_entry.get(), time_entry.get(), label_entry.get(), reminder_window))
         submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
 
-    def on_submit_alarm(self, time_str, day_vars, label, window):
-        """Handle alarm submission from manual input"""
-        try:
-            days = [day for day, var in day_vars.items() if var.get()]
+    # def on_submit_alarm(self, time_str, day_vars, label, window):
+    #     """Handle alarm submission from manual input"""
+    #     try:
+    #         days = [day for day, var in day_vars.items() if var.get()]
             
-            if not time_str or not days or not label:
-                messagebox.showerror("Error", "Please fill in all fields")
-                return
+    #         if not time_str or not days or not label:
+    #             messagebox.showerror("Error", "Please fill in all fields")
+    #             return
             
-            # Validate time format
-            try:
-                datetime.datetime.strptime(time_str, "%H:%M")
-            except ValueError:
-                messagebox.showerror("Error", "Time must be in HH:MM format (e.g., 14:30)")
-                return
+    #         # Validate time format
+    #         try:
+    #             datetime.datetime.strptime(time_str, "%H:%M")
+    #         except ValueError:
+    #             messagebox.showerror("Error", "Time must be in HH:MM format (e.g., 14:30)")
+    #             return
             
-            self.alarm_manager.create_alarm(time_str, days, label)
-            self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
-            window.destroy()
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to set alarm: {str(e)}")
+    #         self.alarm_manager.create_alarm(time_str, days, label)
+    #         self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
+    #         window.destroy()
+    #     except Exception as e:
+    #         messagebox.showerror("Error", f"Failed to set alarm: {str(e)}")
 
     def on_submit_reminder(self, date_str, time_str, label, window):
         """Handle reminder submission from manual input"""
@@ -719,137 +722,137 @@ class ModernVoiceAssistant:
             print(f"Error parsing date: {e}")
             return None
 
-    def set_alarm(self):
-        """Create a new alarm through GUI"""
-        def show_manual_input():
-            alarm_window = tk.Toplevel(self.root)
-            alarm_window.title("Set Alarm")
-            alarm_window.geometry("400x500")
-            alarm_window.configure(bg=self.bg_color)
-            alarm_window.resizable(False, False)
+    # def set_alarm(self):
+    #     """Create a new alarm through GUI"""
+    #     def show_manual_input():
+    #         alarm_window = tk.Toplevel(self.root)
+    #         alarm_window.title("Set Alarm")
+    #         alarm_window.geometry("400x500")
+    #         alarm_window.configure(bg=self.bg_color)
+    #         alarm_window.resizable(False, False)
 
-            # Center the window
-            window_width = alarm_window.winfo_reqwidth()
-            window_height = alarm_window.winfo_reqheight()
-            position_right = int(alarm_window.winfo_screenwidth() / 2 - window_width / 2)
-            position_down = int(alarm_window.winfo_screenheight() / 2 - window_height / 2)
-            alarm_window.geometry(f"+{position_right}+{position_down}")
+    #         # Center the window
+    #         window_width = alarm_window.winfo_reqwidth()
+    #         window_height = alarm_window.winfo_reqheight()
+    #         position_right = int(alarm_window.winfo_screenwidth() / 2 - window_width / 2)
+    #         position_down = int(alarm_window.winfo_screenheight() / 2 - window_height / 2)
+    #         alarm_window.geometry(f"+{position_right}+{position_down}")
 
-            card = ttk.Frame(alarm_window, style="Card.TFrame")
-            card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+    #         card = ttk.Frame(alarm_window, style="Card.TFrame")
+    #         card.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-            # Time entry
-            ttk.Label(card, text="Time (HH:MM):", font=("Helvetica", 11)).pack(pady=(10, 5))
-            time_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-            time_entry.pack(pady=5, padx=20, ipady=5)
-            time_entry.insert(0, "00:00")  # Default time
+    #         # Time entry
+    #         ttk.Label(card, text="Time (HH:MM):", font=("Helvetica", 11)).pack(pady=(10, 5))
+    #         time_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
+    #         time_entry.pack(pady=5, padx=20, ipady=5)
+    #         time_entry.insert(0, "00:00")  # Default time
 
-            # Days selection
-            ttk.Label(card, text="Days:", font=("Helvetica", 11)).pack(pady=(10, 5))
-            days_frame = ttk.Frame(card)
-            days_frame.pack(pady=5, padx=20)
+    #         # Days selection
+    #         ttk.Label(card, text="Days:", font=("Helvetica", 11)).pack(pady=(10, 5))
+    #         days_frame = ttk.Frame(card)
+    #         days_frame.pack(pady=5, padx=20)
             
-            day_vars = {}
-            days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-            for day in days:
-                var = tk.BooleanVar()
-                day_vars[day] = var
-                ttk.Checkbutton(days_frame, text=day, variable=var).pack(anchor=tk.W)
+    #         day_vars = {}
+    #         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    #         for day in days:
+    #             var = tk.BooleanVar()
+    #             day_vars[day] = var
+    #             ttk.Checkbutton(days_frame, text=day, variable=var).pack(anchor=tk.W)
 
-            # Label entry
-            ttk.Label(card, text="Label:", font=("Helvetica", 11)).pack(pady=(10, 5))
-            label_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
-            label_entry.pack(pady=5, padx=20, ipady=5)
+    #         # Label entry
+    #         ttk.Label(card, text="Label:", font=("Helvetica", 11)).pack(pady=(10, 5))
+    #         label_entry = ttk.Entry(card, width=25, font=("Helvetica", 11))
+    #         label_entry.pack(pady=5, padx=20, ipady=5)
 
-            # Buttons frame
-            buttons_frame = ttk.Frame(card)
-            buttons_frame.pack(pady=20)
+    #         # Buttons frame
+    #         buttons_frame = ttk.Frame(card)
+    #         buttons_frame.pack(pady=20)
 
-            # Voice input button
-            voice_btn = ttk.Button(buttons_frame, text="🎤 Voice Input", command=lambda: [alarm_window.destroy(), self.set_alarm()])
-            voice_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
+    #         # Voice input button
+    #         voice_btn = ttk.Button(buttons_frame, text="🎤 Voice Input", command=lambda: [alarm_window.destroy(), self.set_alarm()])
+    #         voice_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
 
-            # Submit button
-            submit_btn = ttk.Button(buttons_frame, text="Set Alarm", command=lambda: self.on_submit_alarm(time_entry.get(), day_vars, label_entry.get(), alarm_window))
-            submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
+    #         # Submit button
+    #         submit_btn = ttk.Button(buttons_frame, text="Set Alarm", command=lambda: self.on_submit_alarm(time_entry.get(), day_vars, label_entry.get(), alarm_window))
+    #         submit_btn.pack(side=tk.LEFT, padx=5, ipadx=10, ipady=5)
 
-        def on_submit(time_str, day_vars, label, window):
-            try:
-                days = [day for day, var in day_vars.items() if var.get()]
+    #     def on_submit(time_str, day_vars, label, window):
+    #         try:
+    #             days = [day for day, var in day_vars.items() if var.get()]
                 
-                if not time_str or not days or not label:
-                    messagebox.showerror("Error", "Please fill in all fields")
-                    return
+    #             if not time_str or not days or not label:
+    #                 messagebox.showerror("Error", "Please fill in all fields")
+    #                 return
                 
-                # Validate time format
-                try:
-                    datetime.datetime.strptime(time_str, "%H:%M")
-                except ValueError:
-                    messagebox.showerror("Error", "Time must be in HH:MM format (e.g., 14:30)")
-                    return
+    #             # Validate time format
+    #             try:
+    #                 datetime.datetime.strptime(time_str, "%H:%M")
+    #             except ValueError:
+    #                 messagebox.showerror("Error", "Time must be in HH:MM format (e.g., 14:30)")
+    #                 return
                 
-                self.alarm_manager.create_alarm(time_str, days, label)
-                self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
-                window.destroy()
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to set alarm: {str(e)}")
+    #             self.alarm_manager.create_alarm(time_str, days, label)
+    #             self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
+    #             window.destroy()
+    #         except Exception as e:
+    #             messagebox.showerror("Error", f"Failed to set alarm: {str(e)}")
 
-        def voice_input():
-            self.speak("What time would you like to set the alarm for?")
-            spoken_time = self.command()
-            if not spoken_time:
-                self.speak("I couldn't hear the time. Would you like to enter it manually?")
-                if "yes" in self.command().lower():
-                    show_manual_input()
-                return
+    #     def voice_input():
+    #         self.speak("What time would you like to set the alarm for?")
+    #         spoken_time = self.command()
+    #         if not spoken_time:
+    #             self.speak("I couldn't hear the time. Would you like to enter it manually?")
+    #             if "yes" in self.command().lower():
+    #                 show_manual_input()
+    #             return
 
-            time_str = self.parse_spoken_time(spoken_time)
-            if not time_str:
-                self.speak("I couldn't understand the time. Would you like to enter it manually?")
-                if "yes" in self.command().lower():
-                    show_manual_input()
-                return
+    #         time_str = self.parse_spoken_time(spoken_time)
+    #         if not time_str:
+    #             self.speak("I couldn't understand the time. Would you like to enter it manually?")
+    #             if "yes" in self.command().lower():
+    #                 show_manual_input()
+    #             return
 
-            self.speak("Which days would you like the alarm to repeat? Say 'every day' for all days, or list specific days.")
-            days_input = self.command().lower()
-            if not days_input:
-                self.speak("I couldn't hear the days. Would you like to enter them manually?")
-                if "yes" in self.command().lower():
-                    show_manual_input()
-                return
+    #         self.speak("Which days would you like the alarm to repeat? Say 'every day' for all days, or list specific days.")
+    #         days_input = self.command().lower()
+    #         if not days_input:
+    #             self.speak("I couldn't hear the days. Would you like to enter them manually?")
+    #             if "yes" in self.command().lower():
+    #                 show_manual_input()
+    #             return
 
-            days = []
-            if "every day" in days_input:
-                days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-            else:
-                for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]:
-                    if day in days_input:
-                        days.append(day.capitalize())
-                if not days:
-                    self.speak("I couldn't understand the days. Would you like to enter them manually?")
-                    if "yes" in self.command().lower():
-                        show_manual_input()
-                    return
+    #         days = []
+    #         if "every day" in days_input:
+    #             days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    #         else:
+    #             for day in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]:
+    #                 if day in days_input:
+    #                     days.append(day.capitalize())
+    #             if not days:
+    #                 self.speak("I couldn't understand the days. Would you like to enter them manually?")
+    #                 if "yes" in self.command().lower():
+    #                     show_manual_input()
+    #                 return
 
-            self.speak("What would you like to label this alarm?")
-            label = self.command()
-            if not label:
-                self.speak("I couldn't hear the label. Would you like to enter it manually?")
-                if "yes" in self.command().lower():
-                    show_manual_input()
-                return
+    #         self.speak("What would you like to label this alarm?")
+    #         label = self.command()
+    #         if not label:
+    #             self.speak("I couldn't hear the label. Would you like to enter it manually?")
+    #             if "yes" in self.command().lower():
+    #                 show_manual_input()
+    #             return
 
-            try:
-                self.alarm_manager.create_alarm(time_str, days, label)
-                self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
-            except Exception as e:
-                self.speak(f"Sorry, I couldn't set the alarm. Error: {str(e)}")
-                self.speak("Would you like to try entering it manually?")
-                if "yes" in self.command().lower():
-                    show_manual_input()
+    #         try:
+    #             self.alarm_manager.create_alarm(time_str, days, label)
+    #             self.speak(f"Alarm set for {time_str} on {', '.join(days)}")
+    #         except Exception as e:
+    #             self.speak(f"Sorry, I couldn't set the alarm. Error: {str(e)}")
+    #             self.speak("Would you like to try entering it manually?")
+    #             if "yes" in self.command().lower():
+    #                 show_manual_input()
 
-        # Start with voice input by default
-        voice_input()
+    #     # Start with voice input by default
+    #     voice_input()
 
     def set_reminder(self):
         """Create a new reminder through GUI"""
@@ -980,83 +983,83 @@ class ModernVoiceAssistant:
         # Start with voice input by default
         voice_input()
 
-    def manage_alarms(self):
-        """Show and manage existing alarms"""
-        def delete_alarm(alarm_id):
-            try:
-                if self.alarm_manager.delete_alarm(alarm_id):
-                    self.speak("Alarm deleted")
-                    refresh_alarms()
-                else:
-                    self.speak("Failed to delete alarm")
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to delete alarm: {str(e)}")
+    # def manage_alarms(self):
+    #     """Show and manage existing alarms"""
+    #     def delete_alarm(alarm_id):
+    #         try:
+    #             if self.alarm_manager.delete_alarm(alarm_id):
+    #                 self.speak("Alarm deleted")
+    #                 refresh_alarms()
+    #             else:
+    #                 self.speak("Failed to delete alarm")
+    #         except Exception as e:
+    #             messagebox.showerror("Error", f"Failed to delete alarm: {str(e)}")
 
-        def toggle_alarm(alarm_id):
-            try:
-                alarm = next((a for a in self.alarm_manager.alarms if a.id == alarm_id), None)
-                if alarm:
-                    alarm = self.alarm_manager.edit_alarm(alarm_id, is_active=not alarm.is_active)
-                    if alarm:
-                        status = "activated" if alarm.is_active else "deactivated"
-                        self.speak(f"Alarm {status}")
-                        refresh_alarms()
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to toggle alarm: {str(e)}")
+        # def toggle_alarm(alarm_id):
+        #     try:
+        #         alarm = next((a for a in self.alarm_manager.alarms if a.id == alarm_id), None)
+        #         if alarm:
+        #             alarm = self.alarm_manager.edit_alarm(alarm_id, is_active=not alarm.is_active)
+        #             if alarm:
+        #                 status = "activated" if alarm.is_active else "deactivated"
+        #                 self.speak(f"Alarm {status}")
+        #                 refresh_alarms()
+        #     except Exception as e:
+        #         messagebox.showerror("Error", f"Failed to toggle alarm: {str(e)}")
 
-        def refresh_alarms():
-            # Clear existing items
-            for widget in alarms_frame.winfo_children():
-                widget.destroy()
+        # def refresh_alarms():
+        #     # Clear existing items
+        #     for widget in alarms_frame.winfo_children():
+        #         widget.destroy()
 
-            # Add alarms
-            for alarm in self.alarm_manager.alarms:
-                alarm_frame = ttk.Frame(alarms_frame, style="Card.TFrame")
-                alarm_frame.pack(fill=tk.X, pady=5, padx=5)
+        #     # Add alarms
+        #     for alarm in self.alarm_manager.alarms:
+        #         alarm_frame = ttk.Frame(alarms_frame, style="Card.TFrame")
+        #         alarm_frame.pack(fill=tk.X, pady=5, padx=5)
 
-                ttk.Label(
-                    alarm_frame,
-                    text=f"{alarm.time} - {alarm.label} ({', '.join(alarm.days)})",
-                    font=("Helvetica", 10)
-                ).pack(side=tk.LEFT, padx=5)
+        #         ttk.Label(
+        #             alarm_frame,
+        #             text=f"{alarm.time} - {alarm.label} ({', '.join(alarm.days)})",
+        #             font=("Helvetica", 10)
+        #         ).pack(side=tk.LEFT, padx=5)
 
-                status = "Active" if alarm.is_active else "Inactive"
-                ttk.Button(
-                    alarm_frame,
-                    text=status,
-                    command=lambda id=alarm.id: toggle_alarm(id)
-                ).pack(side=tk.LEFT, padx=5)
+        #         status = "Active" if alarm.is_active else "Inactive"
+        #         ttk.Button(
+        #             alarm_frame,
+        #             text=status,
+        #             command=lambda id=alarm.id: toggle_alarm(id)
+        #         ).pack(side=tk.LEFT, padx=5)
 
-                ttk.Button(
-                    alarm_frame,
-                    text="Delete",
-                    command=lambda id=alarm.id: delete_alarm(id)
-                ).pack(side=tk.RIGHT, padx=5)
+        #         ttk.Button(
+        #             alarm_frame,
+        #             text="Delete",
+        #             command=lambda id=alarm.id: delete_alarm(id)
+        #         ).pack(side=tk.RIGHT, padx=5)
 
-        manage_window = tk.Toplevel(self.root)
-        manage_window.title("Manage Alarms")
-        manage_window.geometry("500x400")
-        manage_window.configure(bg=self.bg_color)
+        # manage_window = tk.Toplevel(self.root)
+        # manage_window.title("Manage Alarms")
+        # manage_window.geometry("500x400")
+        # manage_window.configure(bg=self.bg_color)
 
-        # Center the window
-        window_width = manage_window.winfo_reqwidth()
-        window_height = manage_window.winfo_reqheight()
-        position_right = int(manage_window.winfo_screenwidth() / 2 - window_width / 2)
-        position_down = int(manage_window.winfo_screenheight() / 2 - window_height / 2)
-        manage_window.geometry(f"+{position_right}+{position_down}")
+        # # Center the window
+        # window_width = manage_window.winfo_reqwidth()
+        # window_height = manage_window.winfo_reqheight()
+        # position_right = int(manage_window.winfo_screenwidth() / 2 - window_width / 2)
+        # position_down = int(manage_window.winfo_screenheight() / 2 - window_height / 2)
+        # manage_window.geometry(f"+{position_right}+{position_down}")
 
-        # Add new alarm button
-        ttk.Button(
-            manage_window,
-            text="Add New Alarm",
-            command=self.set_alarm
-        ).pack(pady=10)
+        # # Add new alarm button
+        # ttk.Button(
+        #     manage_window,
+        #     text="Add New Alarm",
+        #     command=self.set_alarm
+        # ).pack(pady=10)
 
-        # Alarms list
-        alarms_frame = ttk.Frame(manage_window)
-        alarms_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        # # Alarms list
+        # alarms_frame = ttk.Frame(manage_window)
+        # alarms_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        refresh_alarms()
+        # refresh_alarms()
 
     def manage_reminders(self):
         """Show and manage existing reminders"""
@@ -1174,6 +1177,27 @@ class ModernVoiceAssistant:
         now_date = datetime.datetime.now().strftime("%d-%m-%Y")
         self.speak("Today's date is " + now_date)
 
+    def get_joke(self):
+        """Fetch a random joke from a joke API"""
+        try:
+            url = "https://v2.jokeapi.dev/joke/Any?blacklistFlags=nsfw,religious,political,racist,sexist,explicit"
+            response = requests.get(url)
+            data = response.json()
+            
+            if data["error"]:
+                self.speak("Sorry, I couldn't fetch a joke right now.")
+                return
+                
+            if data["type"] == "single":
+                joke = data["joke"]
+            else:
+                joke = f"{data['setup']} ... {data['delivery']}"
+                
+            self.speak(joke)
+        except Exception as e:
+            self.update_conversation("System", f"Error fetching joke: {str(e)}")
+            self.speak("There was an error getting a joke.")
+
     def main_process(self):
         """Main function to process commands."""
         while self.listening:
@@ -1185,8 +1209,15 @@ class ModernVoiceAssistant:
             if "hello" in request or "hi" in request or "hey" in request:
                 self.speak("Welcome! How can I assist you?")
 
-            elif "play music" in request or "play song" in request or "play a song" in request or "music" in request or "song" in request:
-                self.play_music()
+            elif "play music" in request or "play song" in request:
+                self.speak("Playing song for you.")
+                songs = [
+                    "https://www.youtube.com/watch?v=1G4isv_Fylg",
+                    "https://www.youtube.com/watch?v=pElk1ShPrcE",
+                    "https://youtube.com/playlist?list=PLzo8U24DZFeqD4f6ndxeioj5GbxI_xM78&si=MG02jqW4ku2Oqw9r",
+                    "https://www.youtube.com/watch?v=1cDoRqPnCXU",
+                ]
+                webbrowser.open(random.choice(songs))
 
             elif "time" in request:
                 self.get_time()
@@ -1263,11 +1294,11 @@ class ModernVoiceAssistant:
             elif "start dictation" in request or "dictate" in request:
                 self.dictate_to_file()
 
-            elif "set alarm" in request or "create alarm" in request:
-                self.set_alarm()
+            # elif "set alarm" in request or "create alarm" in request:
+            #     self.set_alarm()
 
-            elif "manage alarms" in request or "show alarms" in request or "list alarms" in request:
-                self.manage_alarms()
+            # elif "manage alarms" in request or "show alarms" in request or "list alarms" in request:
+            #     self.manage_alarms()
 
             elif "set reminder" in request or "create reminder" in request:
                 self.set_reminder()
@@ -1277,6 +1308,9 @@ class ModernVoiceAssistant:
 
             elif "news" in request or "headlines" in request or "what's the news" in request:
                 self.get_news()
+            
+            elif "tell me a joke" in request or "joke" in request or "tell me another joke" in request:
+                self.get_joke()
 
             elif "exit" in request or "stop" in request or "bye" in request:
                 self.speak("Goodbye! See you soon.")
