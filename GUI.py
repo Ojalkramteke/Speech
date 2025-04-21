@@ -18,6 +18,7 @@ import whisper
 import tempfile
 import sounddevice as sd
 import scipy.io.wavfile
+import pywhatkit
 from alarm_manager import AlarmManager
 
 # Load the variables from .env
@@ -57,6 +58,14 @@ class ModernVoiceAssistant:
             "ojal": "odinson454@gmail.com",
             "cyril": "323keshav0012@dbit.in",
             "sandhya": "prajapatisandhya619@gmail.com",
+        }
+
+        # WhatsApp contacts
+        self.whatsapp_contacts = {
+            "keshav": "9136669616",
+            "ojal": "9876543211",
+            "cyril": "9876543212",
+            "sandhya": "9876543213",
         }
 
         # Configure styles
@@ -1198,6 +1207,32 @@ class ModernVoiceAssistant:
             self.update_conversation("System", f"Error fetching joke: {str(e)}")
             self.speak("There was an error getting a joke.")
 
+    def send_whatsapp_message(self, recipient, message):
+        """Send a WhatsApp message to a specified contact."""
+        try:
+            # Check if recipient is a contact name
+            phone_number = self.whatsapp_contacts.get(recipient.lower())
+            
+            if not phone_number:
+                # If not a contact, try to use the input as a phone number
+                phone_number = ''.join(filter(str.isdigit, recipient))
+                if len(phone_number) != 10:
+                    self.speak("Invalid phone number. Please provide a 10-digit number or a contact name.")
+                    return False
+            
+            # Add country code if not present (assuming Indian numbers)
+            if len(phone_number) == 10:
+                phone_number = "+91" + phone_number
+            
+            # Send message using pywhatkit
+            pywhatkit.sendwhatmsg_instantly(phone_number, message, wait_time=15)
+            self.speak(f"Message sent to {recipient}")
+            return True
+        except Exception as e:
+            self.update_conversation("System", f"Error sending WhatsApp message: {str(e)}")
+            self.speak("Sorry, I couldn't send the WhatsApp message.")
+            return False
+
     def main_process(self):
         """Main function to process commands."""
         while self.listening:
@@ -1291,14 +1326,23 @@ class ModernVoiceAssistant:
 
                 self.send_email(to_email, subject, message)
 
+            elif "send whatsapp message" in request or "send whatsapp" in request:
+                self.speak("To whom should I send the message? You can say a contact name or phone number.")
+                recipient = self.command()
+                if not recipient:
+                    self.speak("I couldn't get the recipient.")
+                    continue
+
+                self.speak("What is the message?")
+                message = self.command()
+                if not message:
+                    self.speak("I couldn't get the message.")
+                    continue
+
+                self.send_whatsapp_message(recipient, message)
+
             elif "start dictation" in request or "dictate" in request:
                 self.dictate_to_file()
-
-            # elif "set alarm" in request or "create alarm" in request:
-            #     self.set_alarm()
-
-            # elif "manage alarms" in request or "show alarms" in request or "list alarms" in request:
-            #     self.manage_alarms()
 
             elif "set reminder" in request or "create reminder" in request:
                 self.set_reminder()
