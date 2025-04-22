@@ -60,7 +60,7 @@ class ModernVoiceAssistant:
         # Email contacts
         self.email_contacts = {
             "keshav": "prajapatikeshav497@gmail.com",
-            "ojal": "odinson454@gmail.com",
+            "ojal": "prajapatikeshav775@gmail.com",
             "cyril": "323keshav0012@dbit.in",
             "sandhya": "prajapatisandhya619@gmail.com",
         }
@@ -68,9 +68,9 @@ class ModernVoiceAssistant:
         # WhatsApp contacts
         self.whatsapp_contacts = {
             "keshav": "9136669616",
-            "ojal": "9876543211",
-            "cyril": "9876543212",
-            "sandhya": "9876543213",
+            "ojal": "9372884497",
+            "cyril": "7208402562",
+            "sandhya": "9769342246",
         }
 
         # Configure styles
